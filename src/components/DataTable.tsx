@@ -8,30 +8,36 @@ interface DataTableProps {
 }
 
 interface Filters {
+  projectId: string;
   id: string;
   registeredAt: string;
   startAt: string;
   endAt: string;
   status: string;
+  protocolUrl: string;
 }
 
 const columns = [
+  { key: 'projectId' as const, label: 'プロジェクトID' },
   { key: 'id' as const, label: 'ID' },
   { key: 'registeredAt' as const, label: '登録日時' },
   { key: 'startAt' as const, label: '開始日時' },
   { key: 'endAt' as const, label: '終了日時' },
   { key: 'status' as const, label: 'ステータス' },
+  { key: 'protocolUrl' as const, label: 'プロトコルURL' },
 ];
 
 export const DataTable: React.FC<DataTableProps> = ({ data }) => {
   const [sortField, setSortField] = useState<keyof DataItem>('registeredAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [filters, setFilters] = useState<Filters>({
+    projectId: '',
     id: '',
     registeredAt: '',
     startAt: '',
     endAt: '',
     status: '',
+    protocolUrl: '',
   });
 
   const handleSort = (field: keyof DataItem) => {

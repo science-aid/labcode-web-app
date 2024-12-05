@@ -8,11 +8,13 @@ interface Column {
 }
 
 interface DataItem {
+  projectId: string;
   id: string;
   registeredAt: string;
   startAt: string;
   endAt: string;
   status: Status;
+  protocolUrl: string;
 }
 
 interface TableHeaderProps {
