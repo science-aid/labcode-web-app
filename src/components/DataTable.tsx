@@ -9,21 +9,27 @@ interface DataTableProps {
 
 interface Filters {
   projectId: string;
+  projectName: string;
   id: string;
+  protocolName: string;
   registeredAt: string;
   startAt: string;
   endAt: string;
   status: string;
+  contentMd5: string;
   protocolUrl: string;
 }
 
 const columns = [
   { key: 'projectId' as const, label: 'プロジェクトID' },
+  { key: 'projectName' as const, label: 'プロジェクト名' },
   { key: 'id' as const, label: 'ID' },
+  { key: 'protocolName' as const, label: 'プロトコル名' },
   { key: 'registeredAt' as const, label: '登録日時' },
   { key: 'startAt' as const, label: '開始日時' },
   { key: 'endAt' as const, label: '終了日時' },
   { key: 'status' as const, label: 'ステータス' },
+  { key: 'contentMd5' as const, label: 'Content MD5' },
   { key: 'protocolUrl' as const, label: 'プロトコルURL' },
 ];
 
@@ -32,11 +38,14 @@ export const DataTable: React.FC<DataTableProps> = ({ data }) => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [filters, setFilters] = useState<Filters>({
     projectId: '',
+    projectName: '',
     id: '',
+    protocolName: '',
     registeredAt: '',
     startAt: '',
     endAt: '',
     status: '',
+    contentMd5: '',
     protocolUrl: '',
   });
 

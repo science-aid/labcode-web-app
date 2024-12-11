@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { UserProfile } from '../components/UserProfile';
 import { Breadcrumbs } from '../components/Breadcrumbs';
@@ -6,11 +6,37 @@ import { mockData } from '../data/mockData';
 import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
+import { DAGViewer } from '../components/dag/DAGViewer';
+import { mockNodes, mockEdges } from '../data/mockDagData';
 
 export const ProtocolDetailPage: React.FC = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const protocol = mockData.find(item => item.id === id);
+  const [nodes, setNodes] = useState(mockNodes);
+  const [edges, setEdges] = useState(mockEdges);
+
+  useEffect(() => {
+    // Create a module-specific update function
+    const updateDAGData = (newModule: typeof import('../data/mockDagData')) => {
+      setNodes(newModule.mockNodes);
+      setEdges(newModule.mockEdges);
+    };
+
+    // Initial data
+    import('../data/mockDagData').then(module => {
+      updateDAGData(module);
+    });
+
+    // Hot module replacement setup
+    if (import.meta.hot) {
+      import.meta.hot.accept('../data/mockDagData', (newModule) => {
+        if (newModule) {
+          updateDAGData(newModule);
+        }
+      });
+    }
+  }, []);
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -35,7 +61,7 @@ export const ProtocolDetailPage: React.FC = () => {
           </div>
         </div>
       </header>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
@@ -70,6 +96,15 @@ export const ProtocolDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">
+              ワークフロー
+            </h2>
+          </div>
+          <DAGViewer nodes={nodes} edges={edges} />
         </div>
       </main>
     </div>

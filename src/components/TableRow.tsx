@@ -15,10 +15,16 @@ export const TableRow: React.FC<TableRowProps> = ({ item }) => {
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {item.projectId}
       </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {item.projectName}
+      </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
         <Link to={`/protocols/${item.id}`} className="hover:underline">
           {item.id}
         </Link>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+        {item.protocolName}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {formatDateTime(item.registeredAt)}
@@ -31,6 +37,9 @@ export const TableRow: React.FC<TableRowProps> = ({ item }) => {
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <StatusBadge status={item.status} />
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+        {item.contentMd5}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         <a
@@ -45,4 +54,4 @@ export const TableRow: React.FC<TableRowProps> = ({ item }) => {
       </td>
     </tr>
   );
-};
+}

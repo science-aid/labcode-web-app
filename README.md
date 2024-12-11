@@ -15,6 +15,8 @@ A React-based data management system with Google authentication.
    npm run dev
    ```
 
+5. Access the application at `http://localhost:5173/`
+
 ## Features
 
 - Google Authentication
