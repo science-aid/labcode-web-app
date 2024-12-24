@@ -4,9 +4,11 @@ import { NodeStatus } from '../../types/dag';
 
 interface CustomNodeProps {
   data: {
+    id: string;
     label: string;
     status: NodeStatus;
     selected?: boolean;
+    isTransport?: boolean; // 新しいプロパティ
   };
   selected: boolean;
 }
@@ -20,7 +22,9 @@ const statusColors: Record<NodeStatus, { bg: string; border: string; hoverBg: st
 
 const CustomNode: React.FC<CustomNodeProps> = memo(({ data, selected }) => {
   const colors = statusColors[data.status];
-  
+  const shapeClass = data.isTransport ? 'rounded-full' : 'rounded-lg'; // 丸か四角を決定
+  console.log(data)
+
   return (
     <div className="relative group">
       <Handle 
@@ -30,8 +34,9 @@ const CustomNode: React.FC<CustomNodeProps> = memo(({ data, selected }) => {
       />
       <div 
         className={`
-          px-4 py-2 rounded-lg border-2 transition-all duration-200 
+          px-4 py-2 border-2 transition-all duration-200 
           ${colors.bg} ${colors.border} ${colors.hoverBg}
+          ${shapeClass} // 形状クラスを適用
           ${selected ? 'shadow-lg ring-2 ring-blue-400 ring-opacity-50 scale-105' : 'shadow-md hover:scale-105'}
         `}
       >
@@ -51,3 +56,4 @@ const CustomNode: React.FC<CustomNodeProps> = memo(({ data, selected }) => {
 });
 
 export default CustomNode;
+

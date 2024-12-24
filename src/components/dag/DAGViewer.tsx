@@ -31,42 +31,33 @@ export const DAGViewer: React.FC<DAGViewerProps> = ({ nodes: initialNodes, edges
       data: {
         label: node.label,
         status: node.status,
+        isTransport: node.isTransport,
+        selected: false, // 初期選択状態をfalseに
       },
     }))
   );
-  const [selectedNode, setSelectedNode] = useState<DAGNode | null>(null);
 
-  // Update nodes and selected node when initialNodes change
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(initialNodes[0]?.id || null);
+
+  // ノードの選択状態を更新
   useEffect(() => {
-    setNodes(prevNodes => 
-      prevNodes.map(node => {
-        const updatedNode = initialNodes.find(n => n.id === node.id);
-        if (updatedNode) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              label: updatedNode.label,
-              status: updatedNode.status,
-            },
-          };
-        }
-        return node;
-      })
+    setNodes((prevNodes) =>
+      prevNodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          selected: node.id === selectedNodeId,
+        },
+      }))
     );
+  }, [selectedNodeId]);
 
-    // Update selected node if it exists in initialNodes
-    if (selectedNode) {
-      const updatedSelectedNode = initialNodes.find(n => n.id === selectedNode.id);
-      if (updatedSelectedNode && JSON.stringify(updatedSelectedNode) !== JSON.stringify(selectedNode)) {
-        setSelectedNode(updatedSelectedNode);
-      }
-    }
-  }, [initialNodes, selectedNode]);
-
-  // Apply vertical layout
+  // 初期レイアウト適用
   useLayoutEffect(() => {
-    const layoutedNodes = calculateVerticalLayout(nodes, edges);
+    const layoutedNodes = calculateVerticalLayout(nodes, edges).map((node) => ({
+      ...node,
+      data: nodes.find((n) => n.id === node.id)?.data || {}, // 元のdataを維持
+    }));
     setNodes(layoutedNodes);
   }, [edges]);
 
@@ -77,11 +68,12 @@ export const DAGViewer: React.FC<DAGViewerProps> = ({ nodes: initialNodes, edges
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      const dagNode = initialNodes.find((n) => n.id === node.id);
-      setSelectedNode(dagNode || null);
+      setSelectedNodeId(node.id); // 選択されているノードのIDのみを更新
     },
-    [initialNodes]
+    []
   );
+
+  const selectedNode = initialNodes.find((n) => n.id === selectedNodeId) || null;
 
   return (
     <div className="flex h-[calc(100vh-12rem)]">
