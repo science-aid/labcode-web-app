@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
-import { DAGNode } from '../../types/dag';
 import { formatDateTime } from '../../utils/dateFormatter';
 
 interface NodeDetailsProps {
-  node: DAGNode | null;
+  node: any; // 型を変更して柔軟に対応
 }
 
 const getStatusStyles = (status: string) => {
@@ -35,7 +34,7 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
 
   return (
     <div className="p-6 space-y-6">
-      <div>
+      <div className="p-4 border rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900">{node.label}</h3>
         <span className={`inline-block mt-2 px-3 py-1 text-sm rounded-full ${statusStyles}`}>
           {node.status}
@@ -43,55 +42,49 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
       </div>
 
       <div className="space-y-4">
-        <div>
-          <h4 className="text-sm font-medium text-gray-500">説明</h4>
-          <p className="mt-1 text-sm text-gray-900">{node.details.description}</p>
+        <div className="p-4 border rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-gray-500">ID</h4>
+          <p className="mt-1 text-sm text-gray-900">{node.id}</p>
         </div>
 
-        {node.details.startTime && (
-          <div>
-            <h4 className="text-sm font-medium text-gray-500">開始時間</h4>
-            <p className="mt-1 text-sm text-gray-900">
-              {formatDateTime(node.details.startTime)}
-            </p>
-          </div>
-        )}
+        <div className="p-4 border rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-gray-500">開始時間</h4>
+          <p className="mt-1 text-sm text-gray-900">
+            {formatDateTime(node.startTime)}
+          </p>
+        </div>
 
-        {node.details.endTime && (
-          <div>
-            <h4 className="text-sm font-medium text-gray-500">終了時間</h4>
-            <p className="mt-1 text-sm text-gray-900">
-              {formatDateTime(node.details.endTime)}
-            </p>
-          </div>
-        )}
+        <div className="p-4 border rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-gray-500">終了時間</h4>
+          <p className="mt-1 text-sm text-gray-900">
+            {formatDateTime(node.endTime)}
+          </p>
+        </div>
 
-        {node.details.parameters && Object.keys(node.details.parameters).length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium text-gray-500">パラメータ</h4>
-            <dl className="mt-2 grid grid-cols-1 gap-2">
-              {Object.entries(node.details.parameters).map(([key, value]) => (
-                <div key={key} className="flex">
-                  <dt className="text-sm font-medium text-gray-500 w-1/3">{key}:</dt>
-                  <dd className="text-sm text-gray-900 w-2/3">
-                    {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        )}
+        <div className="p-4 border rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-gray-500">入力</h4>
+          <p className="mt-1 text-sm text-gray-900">{node.input}</p>
+        </div>
 
-        {node.details.output && (
-          <div>
-            <h4 className="text-sm font-medium text-gray-500">出力</h4>
-            <pre className="mt-1 text-sm text-gray-900 whitespace-pre-wrap overflow-x-auto">
-              {typeof node.details.output === 'object' 
-                ? JSON.stringify(node.details.output, null, 2) 
-                : node.details.output}
-            </pre>
-          </div>
-        )}
+        <div className="p-4 border rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-gray-500">出力</h4>
+          <p className="mt-1 text-sm text-gray-900">{node.output}</p>
+        </div>
+
+        <div className="p-4 border rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-gray-500">ストレージアドレス</h4>
+          <p className="mt-1 text-sm text-gray-900">{node.storage_address}</p>
+        </div>
+
+        <div className="p-4 border rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-gray-500">プロセスID</h4>
+          <p className="mt-1 text-sm text-gray-900">{node.processId}</p>
+        </div>
+
+        {/* <div className="p-4 border rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-gray-500">輸送フラグ</h4>
+          <p className="mt-1 text-sm text-gray-900">{node.isTransport ? 'はい' : 'いいえ'}</p>
+        </div> */}
       </div>
     </div>
   );
