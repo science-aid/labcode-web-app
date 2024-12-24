@@ -1,16 +1,16 @@
 export type NodeStatus = '完了' | '進行中' | '未開始' | 'エラー';
 
 export interface DAGNode {
-  id: string;
-  label: string;
+  id: string; // データベースで管理されるoperation.id。db内でユニーク
   status: NodeStatus;
-  details: {
-    description: string;
-    startTime?: string;
-    endTime?: string;
-    parameters?: Record<string, string>;
-    output?: string;
-  };
+  label: string;
+  startTime?: string;
+  endTime?: string;
+  input?: string;
+  output?: string;
+  storage_address?: string;
+  processId: string;
+  isTransport: boolean;
 }
 
 export interface DAGEdge {
