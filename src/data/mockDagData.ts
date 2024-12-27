@@ -73,30 +73,6 @@ export const mockNodes: DAGNode[] = [
     "isTransport": false
   },
   {
-    "id": "node-5-1",
-    "status": "完了",
-    "label": "transport input to dispense_liquid1 (volume)",
-    "startTime": "2024-03-15T09:00:00",
-    "endTime": "2024-03-15T09:30:00",
-    "input": "volume",
-    "output": "volume",
-    "processId": "dispense_liquid1",
-    "storage_address": "storage/serve_plate1",
-    "isTransport": true
-  },
-  {
-    "id": "node-5-2",
-    "status": "完了",
-    "label": "transport input to dispense_liquid1 (channel)",
-    "startTime": "2024-03-15T09:00:00",
-    "endTime": "2024-03-15T09:30:00",
-    "input": "channel",
-    "output": "channel",
-    "processId": "dispense_liquid1",
-    "storage_address": "storage/serve_plate1",
-    "isTransport": true
-  },
-  {
     "id": "node-6",
     "status": "完了",
     "label": "transport serve_plate1 to dispense_liquid1",
@@ -132,26 +108,11 @@ export const mockNodes: DAGNode[] = [
     "isTransport": true,
     "storage_address": "storage/location3"
   },
-  {
-    "id": "node-9",
-    "status": "未開始",
-    "label": "transport read_absorbanse1 to output",
-    "startTime": "2024-03-15T11:00:00",
-    "endTime": "2024-03-15T11:30:00",
-    "input": "value",
-    "output": "data",
-    "processId": "output",
-    "isTransport": true,
-    "storage_address": "storage/location4"
-  },
 ];
 
 export const mockEdges: DAGEdge[] = [
   // input to dispense_liquid1
-  { id: 'edge0', source: 'node_input', target: 'node-5-1' },
-  { id: 'edge1', source: 'node-5-1', target: 'node_dispense_liquid1' },
-  { id: 'edge2', source: 'node_input', target: 'node-5-2' },
-  { id: 'edge3', source: 'node-5-2', target: 'node_dispense_liquid1' },
+  { id: 'edge0', source: 'node_input', target: 'node_dispense_liquid1' },
   // serve_plate1 to dispense_liquid1
   { id: 'edge4', source: 'node_serve_plate1', target: 'node-6' },
   { id: 'edge5', source: 'node-6', target: 'node_dispense_liquid1' },
@@ -162,6 +123,5 @@ export const mockEdges: DAGEdge[] = [
   { id: 'edge8', source: 'node_read_absorbance1', target: 'node-8' },
   { id: 'edge9', source: 'node-8', target: 'node_store_labware1' },
   // store_labware1 to output
-  { id: 'edge10', source: 'node_read_absorbance1', target: 'node-9' },
-  { id: 'edge11', source: 'node-9', target: 'node_output' },
+  { id: 'edge10', source: 'node_read_absorbance1', target: 'node_output' },
 ];
