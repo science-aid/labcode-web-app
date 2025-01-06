@@ -1,3 +1,5 @@
+import dagre from 'dagre';
+
 interface Position {
   x: number;
   y: number;
@@ -9,62 +11,48 @@ interface Node {
 }
 
 export const calculateVerticalLayout = (nodes: Node[], edges: { source: string; target: string }[]) => {
-  // Create a map of node levels (depth from root)
-  const levels = new Map<string, number>();
-  const processed = new Set<string>();
+  // Create a new dagre graph
+  const g = new dagre.graphlib.Graph();
 
-  // Find root nodes (nodes with no incoming edges)
-  const incomingEdges = new Map<string, number>();
-  edges.forEach(edge => {
-    incomingEdges.set(edge.target, (incomingEdges.get(edge.target) || 0) + 1);
+  // Set graph options
+  g.setGraph({
+    rankdir: 'TB',     // Top to Bottom layout
+    nodesep: 80,       // 同じランク内のノード間の水平間隔
+    ranksep: 100,      // ランク間の垂直間隔
+    marginx: 40,       // グラフ全体の水平マージン
+    marginy: 40,       // グラフ全体の垂直マージン
   });
 
-  const rootNodes = nodes.filter(node => !incomingEdges.has(node.id));
+  // Default to assigning a new object as a label for each new edge.
+  g.setDefaultEdgeLabel(() => ({}));
 
-  // Calculate levels using BFS
-  const queue = rootNodes.map(node => ({ id: node.id, level: 0 }));
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    if (processed.has(current.id)) continue;
-
-    levels.set(current.id, current.level);
-    processed.add(current.id);
-
-    // Find children
-    const children = edges
-      .filter(edge => edge.source === current.id)
-      .map(edge => edge.target);
-
-    children.forEach(childId => {
-      if (!processed.has(childId)) {
-        queue.push({ id: childId, level: current.level + 1 });
-      }
+  // Add nodes to the graph. The first argument is the node id. The second is
+  // metadata about the node. In this case we're going to add labels to each of
+  // our nodes.
+  nodes.forEach((node) => {
+    g.setNode(node.id, {
+      width: 180,  // ノードの幅
+      height: 100   // ノードの高さ
     });
-  }
-
-  // Calculate x positions for each level
-  const nodesPerLevel = new Map<number, number>();
-  levels.forEach((level) => {
-    nodesPerLevel.set(level, (nodesPerLevel.get(level) || 0) + 1);
   });
 
-  const VERTICAL_SPACING = 200;
-  const HORIZONTAL_SPACING = 250;
+  // Add edges to the graph
+  edges.forEach((edge) => {
+    g.setEdge(edge.source, edge.target);
+  });
 
+  // Compute the layout
+  dagre.layout(g);
+
+  // Get the positioned nodes
   return nodes.map(node => {
-    const level = levels.get(node.id) || 0;
-    const nodesInLevel = nodesPerLevel.get(level) || 1;
-    const nodeIndex = Array.from(levels.entries())
-      .filter(([, l]) => l === level)
-      .findIndex(([id]) => id === node.id);
-
-    // Center nodes horizontally within their level
-    const x = (nodeIndex - (nodesInLevel - 1) / 2) * HORIZONTAL_SPACING;
-    const y = level * VERTICAL_SPACING;
-
+    const nodeWithPosition = g.node(node.id);
     return {
       ...node,
-      position: { x, y }
+      position: {
+        x: nodeWithPosition.x - nodeWithPosition.width / 2,
+        y: nodeWithPosition.y - nodeWithPosition.height / 2
+      }
     };
   });
 };
