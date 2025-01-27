@@ -1,8 +1,8 @@
 export const mockData = [
   {
+    id: "T001",
     projectId: "P001",
     projectName: "がん研究プロジェクト",
-    id: "T001",
     protocolName: "細胞培養実験A",
     registeredAt: "2024-03-10T09:00:00",
     startAt: "2024-03-11T10:00:00",
@@ -12,9 +12,9 @@ export const mockData = [
     contentMd5: "d41d8cd98f00b204e9800998ecf8427e"
   },
   {
+    id: "T002",
     projectId: "P002",
     projectName: "免疫研究プロジェクト",
-    id: "T002",
     protocolName: "抗体実験B",
     registeredAt: "2024-03-10T11:30:00",
     startAt: "2024-03-12T09:00:00",

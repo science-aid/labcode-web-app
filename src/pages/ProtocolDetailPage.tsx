@@ -30,7 +30,7 @@ export const ProtocolDetailPage: React.FC = () => {
 
     // Hot module replacement setup
     if (import.meta.hot) {
-      import.meta.hot.accept('../data/mockDagData', (newModule) => {
+      import.meta.hot.accept('../data/mockDagData', (newModule: any) => {
         if (newModule) {
           updateDAGData(newModule);
         }

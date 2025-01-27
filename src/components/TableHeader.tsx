@@ -1,21 +1,26 @@
 import React from 'react';
 import { ArrowUpDown, ChevronUp, ChevronDown, Search } from 'lucide-react';
-import { Status } from '../types/data';
+// import { Status } from '../types/data';
+import { DataItem } from '../types/data';
 
 interface Column {
   key: keyof DataItem;
   label: string;
 }
 
-interface DataItem {
-  projectId: string;
-  id: string;
-  registeredAt: string;
-  startAt: string;
-  endAt: string;
-  status: Status;
-  protocolUrl: string;
-}
+// interface DataItem {
+//   readonly projectId: string;
+//   readonly projectName: string;
+//   readonly id: string;
+//   readonly protocolName: string;
+//   readonly registeredAt: string;
+//   readonly startAt: string;
+//   readonly endAt: string;
+//   readonly status: Status;
+//   readonly protocolUrl: string;
+//   readonly contentMd5: string;
+// }
+
 
 interface TableHeaderProps {
   column: Column;

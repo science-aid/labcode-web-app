@@ -4,7 +4,7 @@ import { TableRow } from './TableRow';
 import { DataItem } from '../types/data';
 
 interface DataTableProps {
-  data: DataItem[];
+  data: readonly DataItem[];
 }
 
 interface Filters {
