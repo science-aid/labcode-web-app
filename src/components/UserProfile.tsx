@@ -8,7 +8,7 @@ interface UserProfileProps {
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({
-  onHelp = () => alert('ヘルプページを開きます'),
+  onHelp = () => alert('Open help page'),
 }) => {
   const { user, logout } = useAuth();
 
@@ -46,14 +46,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         className="flex items-center justify-center gap-2 px-4 py-2 text-sm text-gray-700 bg-white hover:bg-gray-50 rounded-lg transition-colors shadow w-full"
       >
         <HelpCircle className="w-5 h-5" />
-        <span className="hidden sm:inline">ヘルプ</span>
+        <span className="hidden sm:inline">Help</span>
       </button>
       <button
         onClick={logout}
         className="flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 bg-white hover:bg-red-50 rounded-lg transition-colors shadow w-full"
       >
         <LogOut className="w-5 h-5" />
-        <span className="hidden sm:inline">ログアウト</span>
+        <span className="hidden sm:inline">Logout</span>
       </button>
     </div>
   );

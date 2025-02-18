@@ -66,7 +66,8 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             type="text"
             value={filterValue}
             onChange={(e) => onFilterChange(e.target.value)}
-            placeholder={`${column.label}を検索...`}
+            // placeholder={`${column.label}を検索...`}
+            placeholder={`Search...`}
             className="w-full text-sm border border-gray-300 rounded-md px-3 py-1 pl-8 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <Search className="w-4 h-4 text-gray-400 absolute left-2 top-1/2 transform -translate-y-1/2" />

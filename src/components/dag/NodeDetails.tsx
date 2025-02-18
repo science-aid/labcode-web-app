@@ -27,7 +27,7 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
   if (!node) {
     return (
       <div className="p-4 text-gray-500">
-        ノードを選択してください
+        Select node...
       </div>
     );
   }
@@ -48,39 +48,39 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">開始時間</h4>
+          <h4 className="text-sm font-medium text-gray-500">Start datetime</h4>
           <p className="mt-1 text-sm text-gray-900">
             {formatDateTime(node.startTime)}
           </p>
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">終了時間</h4>
+          <h4 className="text-sm font-medium text-gray-500">Finish datetime</h4>
           <p className="mt-1 text-sm text-gray-900">
             {formatDateTime(node.endTime)}
           </p>
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">入力</h4>
+          <h4 className="text-sm font-medium text-gray-500">Input</h4>
           <p className="mt-1 text-sm text-gray-900">{node.input}</p>
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">出力</h4>
+          <h4 className="text-sm font-medium text-gray-500">Output</h4>
           <p className="mt-1 text-sm text-gray-900">{node.output}</p>
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">ストレージアドレス</h4>
+          <h4 className="text-sm font-medium text-gray-500">Storage address</h4>
           <p className="mt-1 text-sm text-gray-900">{node.storage_address}</p>
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">プロセスID</h4>
-          <p className="mt-1 text-sm text-gray-900">{node.processId}</p>
+          <h4 className="text-sm font-medium text-gray-500">Process ID</h4>
+          {/* <p className="mt-1 text-sm text-gray-900">{node.processId}</p> */}
+          <p className="mt-1 text-sm text-gray-900">{node.process_id}</p>
         </div>
-
         {/* <div className="p-4 border rounded-lg shadow-sm">
           <h4 className="text-sm font-medium text-gray-500">輸送フラグ</h4>
           <p className="mt-1 text-sm text-gray-900">{node.isTransport ? 'はい' : 'いいえ'}</p>

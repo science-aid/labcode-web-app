@@ -52,7 +52,7 @@ export const ProtocolDetailPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-gray-900">プロトコル詳細</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Run detail</h1>
               <Breadcrumbs />
             </div>
             <div className="w-64">

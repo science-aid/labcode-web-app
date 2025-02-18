@@ -7,8 +7,8 @@ export const Breadcrumbs: React.FC = () => {
   const pathnames = location.pathname.split('/').filter(x => x);
 
   const breadcrumbLabels: { [key: string]: string } = {
-    protocol_list: 'プロトコル一覧',
-    protocols: 'プロトコル一覧'
+    protocol_list: 'Run list',
+    protocols: 'Run list'
   };
 
   return (
