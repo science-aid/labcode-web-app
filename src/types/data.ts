@@ -1,16 +1,17 @@
-export type Status = '完了' | '進行中' | '未開始' | 'キャンセル';
+// export type RunStatus = '完了' | '進行中' | 'not started' | 'キャンセル';
+export type RunStatus = 'completed' | 'running' | 'not started' | 'error';
 
 export interface DataItem {
-  readonly projectId: string;
-  readonly projectName: string;
-  readonly id: string;
-  readonly protocolName: string;
-  readonly registeredAt: string;
-  readonly startAt: string;
-  readonly endAt: string;
-  readonly status: Status;
-  readonly contentMd5: string;
-  readonly protocolUrl: string;
+  id: string;
+  project_id: number;
+  project_name: string;
+  protocol_id: number;
+  user_id: number;
+  added_at: string;      // ISO 8601形式の日時文字列
+  started_at: string | null;
+  finished_at: string | null;
+  status: RunStatus;
+  storage_address: string;
 }
 
 export interface User {

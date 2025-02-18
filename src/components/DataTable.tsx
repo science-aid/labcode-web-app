@@ -2,52 +2,65 @@ import React, { useState } from 'react';
 import { TableHeader } from './TableHeader';
 import { TableRow } from './TableRow';
 import { DataItem } from '../types/data';
+import { RunStatus } from '../types/data';
 
 interface DataTableProps {
   data: readonly DataItem[];
 }
 
+
 interface Filters {
-  projectId: string;
-  projectName: string;
-  id: string;
-  protocolName: string;
-  registeredAt: string;
-  startAt: string;
-  endAt: string;
-  status: string;
-  contentMd5: string;
-  protocolUrl: string;
+  id?: number | null;
+  project_id?: number | null;
+  project_name?: string | null;
+  protocol_id?: number | null;
+  user_id?: number | null;
+  added_at?: string | null;
+  started_at?: string | null;
+  finished_at?: string | null;
+  status?: RunStatus;
+  storage_address?: string | null;
 }
+// interface Filters {
+//   id: number;
+//   project_id: number;
+//   project_name: string;
+//   protocol_id: number;
+//   user_id: number;
+//   added_at: string;      // ISO 8601形式の日時文字列
+//   started_at: string | null;
+//   finished_at: string | null;
+//   status: RunStatus;
+//   storage_address: string;
+// }
 
 const columns = [
-  { key: 'projectId' as const, label: 'プロジェクトID' },
-  { key: 'projectName' as const, label: 'プロジェクト名' },
-  { key: 'id' as const, label: 'ID' },
-  { key: 'protocolName' as const, label: 'プロトコル名' },
-  { key: 'registeredAt' as const, label: '登録日時' },
-  { key: 'startAt' as const, label: '開始日時' },
-  { key: 'endAt' as const, label: '終了日時' },
-  { key: 'status' as const, label: 'ステータス' },
-  { key: 'contentMd5' as const, label: 'Content MD5' },
-  { key: 'protocolUrl' as const, label: 'プロトコルURL' },
+  { key: 'id' as const, label: 'Run ID' },
+  { key: 'project_id' as const, label: 'Project ID' },
+  { key: 'project_name' as const, label: 'Project name' },
+  { key: 'protocol_id' as const, label: 'protocol id' },
+  { key: 'user_id' as const, label: 'user ID' },
+  { key: 'added_at' as const, label: 'Add datetime' },
+  { key: 'started_at' as const, label: 'Start datetime' },
+  { key: 'finished_at' as const, label: 'finish datetime' },
+  { key: 'status' as const, label: 'status' },
+  { key: 'storage_address' as const, label: 'storage address' },
+  // { key: 'projectId' as const, label: 'プロジェクトID' },
+  // { key: 'projectName' as const, label: 'プロジェクト名' },
+  // { key: 'id' as const, label: 'ID' },
+  // { key: 'protocolName' as const, label: 'プロトコル名' },
+  // { key: 'registeredAt' as const, label: '登録日時' },
+  // { key: 'startAt' as const, label: '開始日時' },
+  // { key: 'endAt' as const, label: '終了日時' },
+  // { key: 'status' as const, label: 'ステータス' },
+  // { key: 'contentMd5' as const, label: 'Content MD5' },
+  // { key: 'protocolUrl' as const, label: 'プロトコルURL' },
 ];
 
 export const DataTable: React.FC<DataTableProps> = ({ data }) => {
-  const [sortField, setSortField] = useState<keyof DataItem>('registeredAt');
+  const [sortField, setSortField] = useState<keyof DataItem>('added_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [filters, setFilters] = useState<Filters>({
-    projectId: '',
-    projectName: '',
-    id: '',
-    protocolName: '',
-    registeredAt: '',
-    startAt: '',
-    endAt: '',
-    status: '',
-    contentMd5: '',
-    protocolUrl: '',
-  });
+  const [filters, setFilters] = useState<Filters>({});
 
   const handleSort = (field: keyof DataItem) => {
     if (sortField === field) {
