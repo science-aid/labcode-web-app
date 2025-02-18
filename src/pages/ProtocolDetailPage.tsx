@@ -51,8 +51,9 @@ export const ProtocolDetailPage: React.FC = () => {
     //   setEdges(newModule.mockEdges);
     // };
     const updateDag = (newDagData: Dag) => {
-      setNodes(newDagData.nodes);
-      setEdges(newDagData.edges);
+      console.log("DAG UPDATED")
+      setNodes(() => [...newDagData.nodes]);
+      setEdges(() => [...newDagData.edges]);
     }
 
     // Initial data
@@ -74,7 +75,6 @@ export const ProtocolDetailPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const result = await fetchOperations(id_num);
-        // console.log("ああああ")
         // console.log(result)
         updateDag(result);
       } catch (err) {

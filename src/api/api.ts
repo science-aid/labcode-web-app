@@ -57,7 +57,6 @@ export const fetchOperations = async (run_id: number): Promise<Dag> => {
     const nodes = response.data
     // idを文字列に変換
     nodes.forEach(item => {
-      console.log(item)
       item.id = (item.id).toString();
       // なければnull
       item.parent_id = item.parent_id ? item.parent_id?.toString() : null;
