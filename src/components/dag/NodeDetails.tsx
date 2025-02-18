@@ -7,11 +7,14 @@ interface NodeDetailsProps {
 
 const getStatusStyles = (status: string) => {
   switch (status) {
-    case '完了':
+    // case '完了':
+    case 'completed':
       return 'bg-green-100 text-green-800';
-    case '進行中':
+    // case '進行中':
+    case 'running':
       return 'bg-blue-100 text-blue-800';
-    case 'エラー':
+    // case 'エラー':
+    case 'error':
       return 'bg-red-100 text-red-800';
     default:
       return 'bg-gray-100 text-gray-800';
@@ -35,7 +38,8 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
   return (
     <div className="p-6 space-y-6">
       <div className="p-4 border rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900">{node.label}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{node.name}</h3>
+        { /*<h3 className="text-lg font-semibold text-gray-900">TODO: ラベルを記載する</h3>*/}
         <span className={`inline-block mt-2 px-3 py-1 text-sm rounded-full ${statusStyles}`}>
           {node.status}
         </span>
@@ -50,14 +54,16 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
         <div className="p-4 border rounded-lg shadow-sm">
           <h4 className="text-sm font-medium text-gray-500">Start datetime</h4>
           <p className="mt-1 text-sm text-gray-900">
-            {formatDateTime(node.startTime)}
+            {/* {formatDateTime(node.startTime)} */}
+            {node.started_at ? formatDateTime(node.started_at) : "Not started"}
           </p>
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
           <h4 className="text-sm font-medium text-gray-500">Finish datetime</h4>
           <p className="mt-1 text-sm text-gray-900">
-            {formatDateTime(node.endTime)}
+            {/* {formatDateTime(node.endTime)} */}
+            {node.finished_at ? formatDateTime(node.finished_at) : "Not finished"}
           </p>
         </div>
 

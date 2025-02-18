@@ -2,54 +2,113 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { UserProfile } from '../components/UserProfile';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-import { mockData } from '../data/mockData';
-import { useAuth } from '../contexts/AuthContext';
+// import { mockData } from '../data/mockData';
+// import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
 import { DAGViewer } from '../components/dag/DAGViewer';
-import { mockNodes, mockEdges } from '../data/mockDagData';
+// import { mockNodes, mockEdges } from '../data/new_mockDagData';
+import { fetchRun } from '../api/api';
+import { RunResponse } from '../types/api';
+// import { Dag, DAGNode } from '../types/dag';
+import { Dag } from '../types/dag';
+import { DAGNode } from '../types/dag';
+import { DAGEdge } from '../types/dag';
+// import { Node } from '../types/dag';
+// import { Edge } from '../types/dag';
+import { fetchOperations } from '../api/api';
 
 export const ProtocolDetailPage: React.FC = () => {
-  const { id } = useParams();
-  const { user } = useAuth();
-  const protocol = mockData.find(item => item.id === id);
-  const [nodes, setNodes] = useState(mockNodes);
-  const [edges, setEdges] = useState(mockEdges);
+  // const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  // console.log(id);
+  // const { user } = useAuth();
+  // const protocol = mockData.find(item => item.id === id);
+  // const [nodes, setNodes] = useState(mockNodes);
+  // const [edges, setEdges] = useState(mockEdges);
+  const [nodes, setNodes] = useState<DAGNode[]>(() => []);
+  const [edges, setEdges] = useState<DAGEdge[]>(() => []);
+  const [run, setRun] = useState<RunResponse>(
+    {
+      id: 0,
+      project_id: 0,
+      protocol_id: 0,
+      user_id: 0,
+      added_at: "",
+      started_at: "",
+      finished_at: "",
+      status: "completed",
+      storage_address: ""
+    }
+  ); 
 
   useEffect(() => {
+    // console.log(parseInt(id))
     // Create a module-specific update function
-    const updateDAGData = (newModule: typeof import('../data/mockDagData')) => {
-      setNodes(newModule.mockNodes);
-      setEdges(newModule.mockEdges);
-    };
+    const id_num = id ? parseInt(id, 10) : NaN;
+    // const updateDAGData = (newModule: typeof import('../data/new_mockDagData')) => {
+    //   setNodes(newModule.mockNodes);
+    //   setEdges(newModule.mockEdges);
+    // };
+    const updateDag = (newDagData: Dag) => {
+      setNodes(newDagData.nodes);
+      setEdges(newDagData.edges);
+    }
 
     // Initial data
-    import('../data/mockDagData').then(module => {
-      updateDAGData(module);
-    });
+    // import('../data/new_mockDagData').then(module => {
+    //   updateDAGData(module);
+    //   console.log(edges)
+    //   console.log("updated")
+    // });
 
-    // Hot module replacement setup
-    if (import.meta.hot) {
-      import.meta.hot.accept('../data/mockDagData', (newModule: any) => {
-        if (newModule) {
-          updateDAGData(newModule);
-        }
-      });
+    // // Hot module replacement setup
+    // if (import.meta.hot) {
+    //   import.meta.hot.accept('../data/new_mockDagData', (newModule: any) => {
+    //     if (newModule) {
+    //       updateDAGData(newModule);
+    //     }
+    //   });
+    // }
+
+    const fetchData = async () => {
+      try {
+        const result = await fetchOperations(id_num);
+        // console.log("ああああ")
+        // console.log(result)
+        updateDag(result);
+      } catch (err) {
+        console.error(err);
+      }
     }
+
+    const fetchRunData = async () => {
+      try {
+        const result = await fetchRun(id_num);
+        setRun(result);
+        // console.log(result);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchData();
+    fetchRunData();
   }, []);
 
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
+  // if (!user) {
+  //   return <Navigate to="/" replace />;
+  // }
 
-  if (!protocol) {
-    return <Navigate to="/protocol_list" replace />;
-  }
+  // if (!protocol) {
+  //   return <Navigate to="/protocol_list" replace />;
+  // }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4"> */}
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
               <h1 className="text-2xl font-bold text-gray-900">Run detail</h1>
@@ -61,37 +120,39 @@ export const ProtocolDetailPage: React.FC = () => {
           </div>
         </div>
       </header>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6"> */}
+      <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
-              プロトコル {protocol.id}
+              Run ID: {run.id}
+              {/* プロトコル {protocol.id} */}
             </h2>
           </div>
           <div className="px-6 py-5 space-y-6">
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">ステータス</h3>
+                <h3 className="text-sm font-medium text-gray-500">Status</h3>
                 <div className="mt-2">
-                  <StatusBadge status={protocol.status} />
+                  <StatusBadge status={run.status} />
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">登録日時</h3>
+                <h3 className="text-sm font-medium text-gray-500">Add datetime</h3>
                 <p className="mt-2 text-sm text-gray-900">
-                  {formatDateTime(protocol.registeredAt)}
+                  {formatDateTime(run.added_at)}
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">開始日時</h3>
+                <h3 className="text-sm font-medium text-gray-500">Start datetime</h3>
                 <p className="mt-2 text-sm text-gray-900">
-                  {formatDateTime(protocol.startAt)}
+                  {run.started_at ? formatDateTime(run.started_at): 'Not started'}
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">終了日時</h3>
+                <h3 className="text-sm font-medium text-gray-500">Finish datetime</h3>
                 <p className="mt-2 text-sm text-gray-900">
-                  {formatDateTime(protocol.endAt)}
+                  {run.finished_at ? formatDateTime(run.finished_at): 'Not finished'}
                 </p>
               </div>
             </div>
@@ -101,12 +162,18 @@ export const ProtocolDetailPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
-              ワークフロー
+              Workflow
             </h2>
           </div>
           <DAGViewer nodes={nodes} edges={edges} />
+        {/* nodesをjson形式で表示  */}
+        {/* <pre>{JSON.stringify(nodes, null, 2)}</pre> */}
+        {/* edgesをjson形式で表示  */}
+        {/* <pre>{JSON.stringify(edges, null, 2)}</pre> */}
         </div>
       </main>
     </div>
   );
 };
+
+
