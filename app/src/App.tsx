@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { ProtocolListPage } from './pages/ProtocolListPage';
 import { ProtocolDetailPage } from './pages/ProtocolDetailPage';
+import { ProtocolListTestPage } from './pages/ProtocolListTestPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/protocol_list" element={<ProtocolListPage />} />
+            <Route path="/protocol_list_test" element={<ProtocolListTestPage />} />
             <Route path="/protocols/:id" element={<ProtocolDetailPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
