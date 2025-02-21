@@ -8,10 +8,12 @@ WORKDIR /app
 COPY app/package*.json ./
 
 # 依存関係をインストール
-RUN npm install --production
+# RUN npm install --production
+RUN npm install
 
 # アプリケーションのソースコードをコピー
 COPY app ./
 
 # アプリを実行
 CMD ["npm", "run", "dev"]
+# CMD ["sh"]
