@@ -106,10 +106,20 @@ export const fetchRun = async (run_id: number): Promise<RunResponse> => {
     const response = await axios.get<RunResponse>(`${API_BASE_URL}/runs/${run_id}/`);
     const run_data = response.data;
 
-    // ノードとエッジを返す
     return run_data;
   } catch (error) {
-    console.error('Error fetching data:', error);
-    return { id: 0, project_id: 0, protocol_id: 0, user_id: 0, added_at: '', started_at: '', finished_at: '', status: 'not started', storage_address: '' };
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'API request failed',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
   }
 }
