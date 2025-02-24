@@ -13,7 +13,7 @@ interface Filters {
   id?: number | null;
   project_id?: number | null;
   project_name?: string | null;
-  protocol_id?: number | null;
+  file_name?: string | null;
   user_id?: number | null;
   added_at?: string | null;
   started_at?: string | null;
@@ -38,7 +38,7 @@ const columns = [
   { key: 'id' as const, label: 'Run ID' },
   { key: 'project_id' as const, label: 'Project ID' },
   { key: 'project_name' as const, label: 'Project name' },
-  { key: 'protocol_id' as const, label: 'protocol id' },
+  { key: 'file_name' as const, label: 'protocol name' },
   { key: 'user_id' as const, label: 'user ID' },
   { key: 'added_at' as const, label: 'Add datetime' },
   { key: 'started_at' as const, label: 'Start datetime' },

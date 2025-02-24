@@ -5,7 +5,7 @@ export interface DataItem {
   id: string;
   project_id: number;
   project_name: string;
-  protocol_id: number;
+  file_name: string;
   user_id: number;
   added_at: string;      // ISO 8601形式の日時文字列
   started_at: string | null;

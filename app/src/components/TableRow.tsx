@@ -24,7 +24,7 @@ export const TableRow: React.FC<TableRowProps> = ({ item }) => {
           {item.project_name}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-        {item.protocol_id}
+        {item.file_name}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {item.user_id}
