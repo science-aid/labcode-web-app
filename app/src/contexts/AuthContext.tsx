@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useGoogleLogin, googleLogout } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
+import { fetchUser } from '../api/api';
 
 interface User {
   name: string;
@@ -35,6 +36,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         const userInfo = await userInfoResponse.json();
+
+        try {
+          const _user = await fetchUser(userInfo.email);
+        } catch (error: any) {
+          if (error.status === 404) {
+            navigate('/forbidden');
+            return;
+          }
+          throw error;
+        }
         setUser({
           name: userInfo.name,
           email: userInfo.email,

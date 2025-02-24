@@ -21,6 +21,28 @@ export class APIError extends Error {
   }
 }
 
+export const fetchUser = async (user_email: string): Promise<UserResponse> => {
+  try {
+    const data = {params:{email: user_email}}
+    const response = await axios.get<UserResponse>(`${API_BASE_URL}/users/`, data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'API request failed',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+}
+
 export const fetchRuns = async (user_email: string): Promise<DataItem[]> => {
   try {
     const data = {params:{email: user_email}}
