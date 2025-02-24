@@ -53,8 +53,15 @@ export const ProtocolDetailPage: React.FC = () => {
     const fetchRunData = async () => {
       try {
         const result = await fetchRun(id_num);
+        const user_info = await fetchUser(user.email);
+        if (result.user_id != user_info.id) {
+          return <Navigate to="/forbidden" replace />;
+        }
         setRun(result);
       } catch (err) {
+        if (err.status == 404) {
+          return <Navigate to="/not_found" replace />;
+        }
         console.error(err);
       }
     }
