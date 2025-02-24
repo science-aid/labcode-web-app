@@ -2,20 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { UserProfile } from '../components/UserProfile';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-// import { mockData } from '../data/mockData';
-// import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
 import { DAGViewer } from '../components/dag/DAGViewer';
-// import { mockNodes, mockEdges } from '../data/new_mockDagData';
-import { fetchRun } from '../api/api';
+import { fetchRun, fetchUser } from '../api/api';
 import { RunResponse } from '../types/api';
-// import { Dag, DAGNode } from '../types/dag';
 import { Dag } from '../types/dag';
 import { DAGNode } from '../types/dag';
 import { DAGEdge } from '../types/dag';
-// import { Node } from '../types/dag';
-// import { Edge } from '../types/dag';
 import { fetchOperations } from '../api/api';
 
 export const ProtocolDetailPage: React.FC = () => {
@@ -72,9 +67,6 @@ export const ProtocolDetailPage: React.FC = () => {
     return <Navigate to="/" replace />;
   }
 
-  // if (!protocol) {
-  //   return <Navigate to="/protocol_list" replace />;
-  // }
 
   return (
     <div className="min-h-screen bg-gray-50">
