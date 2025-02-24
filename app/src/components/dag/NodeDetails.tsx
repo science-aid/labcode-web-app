@@ -44,7 +44,7 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
 
       <div className="space-y-4">
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">ID</h4>
+          <h4 className="text-sm font-medium text-gray-500">Operation ID</h4>
           <p className="mt-1 text-sm text-gray-900">{node.id}</p>
         </div>
 
