@@ -41,12 +41,12 @@ export const TableRow: React.FC<TableRowProps> = ({ item }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <StatusBadge status={item.status} />
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+      {/* <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
         {item.storage_address}
-      </td>
-      {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+      </td> */}
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         <a
-          href={item.protocolUrl}
+          href={item.storage_address}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline"
@@ -54,7 +54,7 @@ export const TableRow: React.FC<TableRowProps> = ({ item }) => {
           <span>URL</span>
           <ExternalLink className="w-4 h-4" />
         </a>
-      </td> */}
+      </td>
     </tr>
   );
 }
