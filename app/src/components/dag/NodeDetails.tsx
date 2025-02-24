@@ -63,13 +63,14 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">Input</h4>
-          <p className="mt-1 text-sm text-gray-900">{node.input}</p>
+          <h4 className="text-sm font-medium text-gray-500">Operation storage address</h4>
+          <p className="mt-1 text-sm text-gray-900">{node.storage_address}</p>
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">Output</h4>
-          <p className="mt-1 text-sm text-gray-900">{node.output}</p>
+          <h4 className="text-sm font-medium text-gray-500">Process ID</h4>
+          {/* <p className="mt-1 text-sm text-gray-900">{node.processId}</p> */}
+          <p className="mt-1 text-sm text-gray-900">{node.process_name}</p>
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
