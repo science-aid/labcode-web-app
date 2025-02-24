@@ -21,8 +21,6 @@ export const ProtocolListPage: React.FC = () => {
     const fetchData = async () => {
           try {
             const result = await fetchRuns(user!.email);
-            // const result = await fetchRuns("string");
-            console.log(result);
             setData(result);
           } catch (err) {
             if (err instanceof APIError) {

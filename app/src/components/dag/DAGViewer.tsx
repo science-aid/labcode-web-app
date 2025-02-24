@@ -33,13 +33,10 @@ export const DAGViewer: React.FC<DAGViewerProps> = ({ nodes, edges }) => {
   //     if (nodes.length > 0 && selectedNodeId === null) {
   //       setSelectedNodeId(nodes[0].id);
   //     }
-  //     console.log("DAGViewer nodes updated:", nodes);
-  //     console.log("DAGViewer edges updated:", edges);
   //   }, [nodes, selectedNodeId, edges]);
 
   // DAGNode[] → ReactFlowのNode[] に変換（positionは一旦0,0に）
   const reactFlowNodes = useMemo(() => {
-    // console.log("position calculation")
     return nodes.map((node) => ({
       id: node.id,
       type: 'custom',
@@ -57,7 +54,6 @@ export const DAGViewer: React.FC<DAGViewerProps> = ({ nodes, edges }) => {
 
   // レイアウト計算後のノード
   const layoutedNodes: Node[] = useMemo(() => {
-    // console.log("layoutedNodes")
     // calculateVerticalLayoutを用いて座標計算
     const positionedNodes = calculateVerticalLayout(reactFlowNodes, edges);
 
@@ -81,7 +77,6 @@ export const DAGViewer: React.FC<DAGViewerProps> = ({ nodes, edges }) => {
 
   // ノード変化（ドラッグなど）が起きても、今回は特にステート管理しない
   const onNodesChange = useCallback((_: NodeChange[]) => {
-    // console.log("onNodesChange")
     // ドラッグ不可等にしたい場合は無視できる
   }, []);
 

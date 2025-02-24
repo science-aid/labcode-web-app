@@ -21,11 +21,7 @@ import { fetchOperations } from '../api/api';
 export const ProtocolDetailPage: React.FC = () => {
   // const { id } = useParams();
   const { id } = useParams<{ id: string }>();
-  // console.log(id);
-  // const { user } = useAuth();
-  // const protocol = mockData.find(item => item.id === id);
-  // const [nodes, setNodes] = useState(mockNodes);
-  // const [edges, setEdges] = useState(mockEdges);
+  const { user } = useAuth();
   const [nodes, setNodes] = useState<DAGNode[]>(() => []);
   const [edges, setEdges] = useState<DAGEdge[]>(() => []);
   const [run, setRun] = useState<RunResponse>(
@@ -43,39 +39,17 @@ export const ProtocolDetailPage: React.FC = () => {
   ); 
 
   useEffect(() => {
-    // console.log(parseInt(id))
     // Create a module-specific update function
     const id_num = id ? parseInt(id, 10) : NaN;
-    // const updateDAGData = (newModule: typeof import('../data/new_mockDagData')) => {
-    //   setNodes(newModule.mockNodes);
-    //   setEdges(newModule.mockEdges);
-    // };
     const updateDag = (newDagData: Dag) => {
       console.log("DAG UPDATED")
       setNodes(() => [...newDagData.nodes]);
       setEdges(() => [...newDagData.edges]);
     }
 
-    // Initial data
-    // import('../data/new_mockDagData').then(module => {
-    //   updateDAGData(module);
-    //   console.log(edges)
-    //   console.log("updated")
-    // });
-
-    // // Hot module replacement setup
-    // if (import.meta.hot) {
-    //   import.meta.hot.accept('../data/new_mockDagData', (newModule: any) => {
-    //     if (newModule) {
-    //       updateDAGData(newModule);
-    //     }
-    //   });
-    // }
-
     const fetchData = async () => {
       try {
         const result = await fetchOperations(id_num);
-        // console.log(result)
         updateDag(result);
       } catch (err) {
         console.error(err);
@@ -86,7 +60,6 @@ export const ProtocolDetailPage: React.FC = () => {
       try {
         const result = await fetchRun(id_num);
         setRun(result);
-        // console.log(result);
       } catch (err) {
         console.error(err);
       }
@@ -96,9 +69,9 @@ export const ProtocolDetailPage: React.FC = () => {
     fetchRunData();
   }, []);
 
-  // if (!user) {
-  //   return <Navigate to="/" replace />;
-  // }
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
 
   // if (!protocol) {
   //   return <Navigate to="/protocol_list" replace />;

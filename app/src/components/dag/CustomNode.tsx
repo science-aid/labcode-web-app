@@ -15,14 +15,8 @@ interface CustomNodeProps {
 
 const statusColors: Record<NodeStatus, { bg: string; border: string; hoverBg: string }> = {
   'completed': { bg: 'bg-green-100', border: 'border-green-500', hoverBg: 'hover:bg-green-200' },
-  // '完了': { bg: 'bg-green-100', border: 'border-green-500', hoverBg: 'hover:bg-green-200' },
-  // '進行中': { bg: 'bg-blue-100', border: 'border-blue-500', hoverBg: 'hover:bg-blue-200' },
   'running': { bg: 'bg-blue-100', border: 'border-blue-500', hoverBg: 'hover:bg-blue-200' },
-  // '未開始': { bg: 'bg-gray-100', border: 'border-gray-500', hoverBg: 'hover:bg-gray-200' },
   'not started': { bg: 'bg-gray-100', border: 'border-gray-500', hoverBg: 'hover:bg-gray-200' },
-  // 'running': { bg: 'bg-blue-100', border: 'border-blue-500', hoverBg: 'hover:bg-blue-200' },
-  // 'not started': { bg: 'bg-gray-100', border: 'border-gray-500', hoverBg: 'hover:bg-gray-200' },
-  // 'エラー': { bg: 'bg-red-100', border: 'border-red-500', hoverBg: 'hover:bg-red-200' }
   'error': { bg: 'bg-red-100', border: 'border-red-500', hoverBg: 'hover:bg-red-200' }
 };
 

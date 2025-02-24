@@ -25,13 +25,11 @@ export const fetchRuns = async (user_email: string): Promise<DataItem[]> => {
   try {
     const data = {params:{email: user_email}}
     const user_response = await axios.get<UserResponse>(`${API_BASE_URL}/users/`, data);
-    // console.log(user_response)
     const response = await axios.get<DataItem[]>(`${API_BASE_URL}/users/${user_response.data.id}/runs`);
     // convert id to string
     response.data.forEach(item => {
       item.id = item.id.toString();
     });
-    // console.log(response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -71,16 +69,6 @@ export const fetchOperations = async (run_id: number): Promise<Dag> => {
       source: item.from_id.toString(),
       target: item.to_id.toString()
     }));
-    // console.log(edges);
-
-    // エッジを作成
-    // const edges: DAGEdge[] = nodes
-    //   .filter(item => item.parent_id !== null) // parent_idがnullでないアイテムのみ対象
-    //   .map((item, index) => ({
-    //     id: `edge${index}`,
-    //     source: item.parent_id!, // parent_idはnullでないことを保証
-    //     target: item.id,
-    //   }));
 
     // ノードとエッジを返す
     return { nodes, edges };
