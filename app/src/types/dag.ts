@@ -13,7 +13,7 @@ export interface DAGNode {
   // processId: string;
   process_id: number;
   parent_id: string | null;
-  isTransport: boolean;
+  is_transport: boolean;
 }
 
 export interface DAGEdge {
