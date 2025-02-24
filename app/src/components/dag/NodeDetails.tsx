@@ -7,13 +7,10 @@ interface NodeDetailsProps {
 
 const getStatusStyles = (status: string) => {
   switch (status) {
-    // case '完了':
     case 'completed':
       return 'bg-green-100 text-green-800';
-    // case '進行中':
     case 'running':
       return 'bg-blue-100 text-blue-800';
-    // case 'エラー':
     case 'error':
       return 'bg-red-100 text-red-800';
     default:
@@ -54,7 +51,6 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
         <div className="p-4 border rounded-lg shadow-sm">
           <h4 className="text-sm font-medium text-gray-500">Start datetime</h4>
           <p className="mt-1 text-sm text-gray-900">
-            {/* {formatDateTime(node.startTime)} */}
             {node.started_at ? formatDateTime(node.started_at) : "Not started"}
           </p>
         </div>
@@ -62,7 +58,6 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
         <div className="p-4 border rounded-lg shadow-sm">
           <h4 className="text-sm font-medium text-gray-500">Finish datetime</h4>
           <p className="mt-1 text-sm text-gray-900">
-            {/* {formatDateTime(node.endTime)} */}
             {node.finished_at ? formatDateTime(node.finished_at) : "Not finished"}
           </p>
         </div>
@@ -83,14 +78,9 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
         </div>
 
         <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">Process ID</h4>
-          {/* <p className="mt-1 text-sm text-gray-900">{node.processId}</p> */}
-          <p className="mt-1 text-sm text-gray-900">{node.process_id}</p>
+          <h4 className="text-sm font-medium text-gray-500">Log</h4>
+          <p className="mt-1 text-sm text-gray-900">{node.storage_address}</p>
         </div>
-        {/* <div className="p-4 border rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-gray-500">輸送フラグ</h4>
-          <p className="mt-1 text-sm text-gray-900">{node.isTransport ? 'はい' : 'いいえ'}</p>
-        </div> */}
       </div>
     </div>
   );
