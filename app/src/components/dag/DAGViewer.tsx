@@ -48,7 +48,7 @@ export const DAGViewer: React.FC<DAGViewerProps> = ({ nodes, edges }) => {
         label: node.name,
         // label: "TODO: ラベルを記載する",
         status: node.status,
-        isTransport: node.isTransport,
+        is_transport: node.is_transport,
         // 選択状態を反映
         selected: node.id === selectedNodeId,
       },

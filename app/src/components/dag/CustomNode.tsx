@@ -8,7 +8,7 @@ interface CustomNodeProps {
     label: string;
     status: NodeStatus;
     selected?: boolean;
-    isTransport?: boolean; // 新しいプロパティ
+    is_transport?: boolean;
   };
   selected: boolean;
 }
@@ -28,8 +28,7 @@ const statusColors: Record<NodeStatus, { bg: string; border: string; hoverBg: st
 
 const CustomNode: React.FC<CustomNodeProps> = memo(({ data, selected }) => {
   const colors = statusColors[data.status];
-  const shapeClass = data.isTransport ? 'rounded-full' : 'rounded-lg'; // 丸か四角を決定
-  // console.log(data)
+  const shapeClass = data.is_transport ? 'rounded-full' : 'rounded-lg'; // 丸か四角を決定
 
   return (
     <div className="relative group">
