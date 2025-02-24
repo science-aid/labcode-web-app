@@ -42,7 +42,6 @@ export const ProtocolDetailPage: React.FC = () => {
     // Create a module-specific update function
     const id_num = id ? parseInt(id, 10) : NaN;
     const updateDag = (newDagData: Dag) => {
-      console.log("DAG UPDATED")
       setNodes(() => [...newDagData.nodes]);
       setEdges(() => [...newDagData.edges]);
     }

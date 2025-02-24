@@ -11,10 +11,8 @@ export const ProtocolListTestPage: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(true);
 
   const fetchData = async () => {
-        console.log('Component mounted');
         try {
           const result = await fetchRuns();
-          console.log(result);
           setData(result);
         } catch (err) {
           if (err instanceof APIError) {
