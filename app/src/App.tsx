@@ -17,7 +17,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/protocol_list" element={<ProtocolListPage />} />
-            <Route path="/protocols/:id" element={<ProtocolDetailPage />} />
+            <Route path="/protocol_list/:id" element={<ProtocolDetailPage />} />
             <Route path="/not_found" element={<NotFound />} />
             <Route path="/forbidden" element={<Forbidden />} />
             <Route path="/internal_server_error" element={<InternalServerError />} />
