@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { DataTable } from '../components/DataTable';
 import { UserProfile } from '../components/UserProfile';
 import { Breadcrumbs } from '../components/Breadcrumbs';
