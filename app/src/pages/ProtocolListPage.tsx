@@ -16,6 +16,7 @@ export const ProtocolListPage: React.FC = () => {
   const [data, setData] = React.useState<DataItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,6 +26,8 @@ export const ProtocolListPage: React.FC = () => {
           } catch (err) {
             if (err instanceof APIError) {
               setError(`API Error: ${err.message} (Status: ${err.status || 'unknown'})`);
+              navigate('/internal_server_error', { replace: true });
+
             } else {
               setError(`Unexpected error: ${(err as Error).message}`);
             }

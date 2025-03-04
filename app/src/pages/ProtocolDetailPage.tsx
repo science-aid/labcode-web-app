@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { UserProfile } from '../components/UserProfile';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,8 +13,9 @@ import { DAGNode } from '../types/dag';
 import { DAGEdge } from '../types/dag';
 import { fetchOperations } from '../api/api';
 
+
 export const ProtocolDetailPage: React.FC = () => {
-  // const { id } = useParams();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [nodes, setNodes] = useState<DAGNode[]>(() => []);
@@ -47,6 +48,7 @@ export const ProtocolDetailPage: React.FC = () => {
         updateDag(result);
       } catch (err) {
         console.error(err);
+        navigate('/internal_server_error', { replace: true });
       }
     }
 
@@ -63,6 +65,7 @@ export const ProtocolDetailPage: React.FC = () => {
           return <Navigate to="/not_found" replace />;
         }
         console.error(err);
+        navigate('/internal_server_error', { replace: true });
       }
     }
 
