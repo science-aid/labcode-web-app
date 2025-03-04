@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useGoogleLogin, googleLogout } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import { fetchUser } from '../api/api';
@@ -19,9 +19,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [user]);
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -30,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
-        
+
         if (!userInfoResponse.ok) {
           throw new Error('Failed to fetch user info');
         }
@@ -46,11 +57,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           throw error;
         }
-        setUser({
+
+        const newUser = {
           name: userInfo.name,
           email: userInfo.email,
           picture: userInfo.picture,
-        });
+        };
+
+        setUser(newUser);
+        localStorage.setItem('user', JSON.stringify(newUser));
         navigate('/protocol_list');
       } catch (error) {
         console.error('Error fetching user info:', error);
@@ -67,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     googleLogout();
     setUser(null);
+    localStorage.removeItem('user');
     navigate('/');
   };
 
