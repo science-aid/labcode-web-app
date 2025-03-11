@@ -10,6 +10,7 @@ export default defineConfig({
     },
   },
   server: {
+    allowedHosts: ["labcode-web-app.com"],
     port: 5173,
     host: true,
     proxy: {
