@@ -8,7 +8,8 @@ import { DAGEdge } from '../types/dag';
 import { EdgeResponse } from '../types/dag';
 import { Dag } from '../types/dag';
 
-const API_BASE_URL = 'http://0.0.0.0:8000';
+// const API_BASE_URL = 'http://0.0.0.0:8000';
+const API_BASE_URL = '/log_server_api';
 
 export class APIError extends Error {
   constructor(

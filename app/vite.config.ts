@@ -14,10 +14,10 @@ export default defineConfig({
     port: 5173,
     host: true,
     proxy: {
-      '/api': {
-        target: 'http://www.example.com',
+      '/log_server_api': {
+        target: 'http://log_server:8000',
         changeOrigin: true,
-        rewrite: (path: string) => path.replace(/^\/api/, ''),
+        rewrite: (path: string) => path.replace(/^\/log_server_api/, ''),
         configure: (proxy, _options) => {
                   proxy.on('proxyRes', (proxyRes, _req, _res) => {
                     proxyRes.headers['Access-Control-Allow-Origin'] = '*';
