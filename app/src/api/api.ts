@@ -104,7 +104,7 @@ export const fetchOperations = async (run_id: number): Promise<Dag> => {
 export const fetchRun = async (run_id: number): Promise<RunResponse> => {
   try {
     // APIからデータを取得
-    const response = await axios.get<RunResponse>(`${API_BASE_URL}/runs/${run_id}/`);
+    const response = await axios.get<RunResponse>(`${API_BASE_URL}/runs/${run_id}`);
     const run_data = response.data;
 
     return run_data;
