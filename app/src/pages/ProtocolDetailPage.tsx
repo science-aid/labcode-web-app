@@ -47,8 +47,10 @@ export const ProtocolDetailPage: React.FC = () => {
         const result = await fetchOperations(id_num);
         updateDag(result);
       } catch (err) {
+        if (err.status == 404) {
+          navigate('/not_found', { replace: true });
+        }
         console.error(err);
-        navigate('/internal_server_error', { replace: true });
       }
     }
 
@@ -57,15 +59,14 @@ export const ProtocolDetailPage: React.FC = () => {
         const result = await fetchRun(id_num);
         const user_info = await fetchUser(user.email);
         if (result.user_id != user_info.id) {
-          return <Navigate to="/forbidden" replace />;
+          navigate('/forbidden', { replace: true });
         }
         setRun(result);
       } catch (err) {
         if (err.status == 404) {
-          return <Navigate to="/not_found" replace />;
+          navigate('/not_found', { replace: true });
         }
         console.error(err);
-        navigate('/internal_server_error', { replace: true });
       }
     }
 
