@@ -96,8 +96,21 @@ export const fetchOperations = async (run_id: number): Promise<Dag> => {
     // ノードとエッジを返す
     return { nodes, edges };
   } catch (error) {
-    console.error('Error fetching data:', error);
-    return { nodes: [], edges: [] };
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'API request failed',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+    // console.error('Error fetching data:', error);
+    // return { nodes: [], edges: [] };
   }
 }
 
