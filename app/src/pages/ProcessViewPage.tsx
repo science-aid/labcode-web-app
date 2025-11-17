@@ -6,15 +6,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
 import { ProcessViewer } from '../components/dag/ProcessViewer'; // ★新規コンポーネント
-// import { fetchProcesses } from '../api/api'; // ★fetchProcessesは新規API関数 (detail_1-6で実装予定)
-import { fetchRun, fetchUser } from '../api/api';
+import { fetchProcesses, fetchRun, fetchUser } from '../api/api'; // ★fetchProcesses実装済み
 import { RunResponse } from '../types/api';
 import { ProcessNode, ProcessEdge } from '../types/process'; // ★新規型定義
 import { Edge } from 'reactflow';
 
 export const ProcessViewPage: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>(); // Run ID
+  const { runId } = useParams<{ runId: string }>(); // Run ID (RESTful準拠)
   const { user } = useAuth();
   const [nodes, setNodes] = useState<ProcessNode[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -31,24 +30,24 @@ export const ProcessViewPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const id_num = id ? parseInt(id, 10) : NaN;
+    const id_num = runId ? parseInt(runId, 10) : NaN;
 
-    // const updateDag = (newDagData: ProcessDag) => {
-    //   setNodes([...newDagData.nodes]);
-    //   setEdges([...newDagData.edges]);
-    // };
+    const updateDag = (newDagData: { nodes: ProcessNode[], edges: ProcessEdge[] }) => {
+      setNodes([...newDagData.nodes]);
+      setEdges([...newDagData.edges]);
+    };
 
-    // const fetchData = async () => {
-    //   try {
-    //     const result = await fetchProcesses(id_num); // ★新規API呼び出し
-    //     updateDag(result);
-    //   } catch (err) {
-    //     if (err.status == 404) {
-    //       navigate('/not_found', { replace: true });
-    //     }
-    //     console.error(err);
-    //   }
-    // };
+    const fetchData = async () => {
+      try {
+        const result = await fetchProcesses(id_num); // ★API呼び出し実装済み
+        updateDag(result);
+      } catch (err: any) {
+        if (err.status == 404) {
+          navigate('/not_found', { replace: true });
+        }
+        console.error(err);
+      }
+    };
 
     const fetchRunData = async () => {
       try {
@@ -58,7 +57,7 @@ export const ProcessViewPage: React.FC = () => {
           navigate('/forbidden', { replace: true });
         }
         setRun(result);
-      } catch (err) {
+      } catch (err: any) {
         if (err.status == 404) {
           navigate('/not_found', { replace: true });
         }
@@ -66,9 +65,9 @@ export const ProcessViewPage: React.FC = () => {
       }
     };
 
-    // fetchData();
+    fetchData();  // ★実行
     fetchRunData();
-  }, [id, navigate, user.email]);
+  }, [runId, navigate, user.email]);
 
   if (!user) {
     return <Navigate to="/" replace />;

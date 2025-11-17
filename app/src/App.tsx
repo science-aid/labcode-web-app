@@ -19,7 +19,7 @@ function App() {
             <Route path="/" element={<LoginPage />} />
             <Route path="/protocol_list" element={<ProtocolListPage />} />
             <Route path="/protocol_list/:id" element={<ProtocolDetailPage />} />
-            <Route path="/protocol_list/:id/processes" element={<ProcessViewPage />} /> {/* ★新規追加 */}
+            <Route path="/runs/:runId/processes" element={<ProcessViewPage />} /> {/* ★RESTful準拠に変更 */}
             <Route path="/not_found" element={<NotFound />} />
             <Route path="/forbidden" element={<Forbidden />} />
             <Route path="/internal_server_error" element={<InternalServerError />} />

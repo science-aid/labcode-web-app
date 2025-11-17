@@ -7,6 +7,7 @@ import { DAGNode } from '../types/dag';
 import { DAGEdge } from '../types/dag';
 import { EdgeResponse } from '../types/dag';
 import { Dag } from '../types/dag';
+import { ProcessNode, ProcessDag, ProcessEdge } from '../types/process';
 
 // const API_BASE_URL = 'http://0.0.0.0:8000';
 const API_BASE_URL = '/log_server_api';
@@ -121,6 +122,50 @@ export const fetchRun = async (run_id: number): Promise<RunResponse> => {
     const run_data = response.data;
 
     return run_data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'API request failed',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+}
+
+// プロセス一覧とエッジを取得（Bug-4, Bug-5対応）
+export const fetchProcesses = async (runId: number): Promise<ProcessDag> => {
+  try {
+    // プロセス一覧を取得
+    const processesResponse = await axios.get(`${API_BASE_URL}/runs/${runId}/processes`);
+    const processes: ProcessNode[] = processesResponse.data;
+
+    // エッジ一覧を取得
+    const edgesResponse = await axios.get<EdgeResponse[]>(`${API_BASE_URL}/edges/run/${runId}`);
+    const allEdges: EdgeResponse[] = edgesResponse.data;
+
+    // プロセスIDのセットを作成（input/output除外済み）
+    const processIds = new Set(processes.map(p => parseInt(p.id)));
+
+    // エッジをフィルタリング（両端のプロセスがprocessIdsに含まれるもののみ）
+    const filteredEdges = allEdges.filter(
+      edge => processIds.has(edge.from_id) && processIds.has(edge.to_id)
+    );
+
+    // ProcessEdge形式に変換
+    const edges: ProcessEdge[] = filteredEdges.map(e => ({
+      id: `e${e.from_id}-${e.to_id}`,
+      source: e.from_id.toString(),
+      target: e.to_id.toString(),
+    }));
+
+    return { nodes: processes, edges };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
