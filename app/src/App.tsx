@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { ProtocolListPage } from './pages/ProtocolListPage';
 import { ProtocolDetailPage } from './pages/ProtocolDetailPage';
+import { ProcessViewPage } from './pages/ProcessViewPage'; // ★新規インポート
 import NotFound from './pages/NotFound';
 import InternalServerError from './pages/InternalServerError';
 import Forbidden from './pages/Forbidden';
@@ -18,6 +19,7 @@ function App() {
             <Route path="/" element={<LoginPage />} />
             <Route path="/protocol_list" element={<ProtocolListPage />} />
             <Route path="/protocol_list/:id" element={<ProtocolDetailPage />} />
+            <Route path="/protocol_list/:id/processes" element={<ProcessViewPage />} /> {/* ★新規追加 */}
             <Route path="/not_found" element={<NotFound />} />
             <Route path="/forbidden" element={<Forbidden />} />
             <Route path="/internal_server_error" element={<InternalServerError />} />
