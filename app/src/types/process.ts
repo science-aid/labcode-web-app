@@ -11,7 +11,12 @@ export interface ProcessNode {
   };
   created_at: string;
   updated_at: string;
+  started_at?: string;
+  finished_at?: string;
 }
+
+// Process型のエイリアス（後方互換性のため）
+export type Process = ProcessNode;
 
 // ポート型
 export interface Port {
