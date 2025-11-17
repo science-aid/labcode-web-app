@@ -142,7 +142,7 @@ export const ProtocolDetailPage: React.FC = () => {
               </h2>
               {/* ★新規追加 - Process view へのリンク */}
               <button
-                onClick={() => navigate(`/protocol_list/${id}/processes`)}
+                onClick={() => navigate(`/runs/${id}/processes`)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 View Processes

@@ -139,12 +139,27 @@ export const fetchRun = async (run_id: number): Promise<RunResponse> => {
   }
 }
 
-// プロセス一覧とエッジを取得（Bug-4, Bug-5対応）
+// プロセス一覧とエッジを取得（Bug-4, Bug-5対応, 操作ID→プロセスID変換対応）
 export const fetchProcesses = async (runId: number): Promise<ProcessDag> => {
   try {
     // プロセス一覧を取得
     const processesResponse = await axios.get(`${API_BASE_URL}/runs/${runId}/processes`);
     const processes: ProcessNode[] = processesResponse.data;
+
+    // プロセスノードのIDを文字列に変換（React Flow要件対応）
+    processes.forEach(item => {
+      item.id = (item.id as any).toString();
+    });
+
+    // 操作一覧を取得（操作ID → プロセスIDのマッピングを作成）
+    const operationsResponse = await axios.get(`${API_BASE_URL}/runs/${runId}/operations`);
+    const operations = operationsResponse.data;
+
+    // 操作ID → プロセスIDのマッピングを作成
+    const operationToProcessMap = new Map<number, number>();
+    operations.forEach((op: any) => {
+      operationToProcessMap.set(op.id, op.process_id);
+    });
 
     // エッジ一覧を取得
     const edgesResponse = await axios.get<EdgeResponse[]>(`${API_BASE_URL}/edges/run/${runId}`);
@@ -153,16 +168,26 @@ export const fetchProcesses = async (runId: number): Promise<ProcessDag> => {
     // プロセスIDのセットを作成（input/output除外済み）
     const processIds = new Set(processes.map(p => parseInt(p.id)));
 
-    // エッジをフィルタリング（両端のプロセスがprocessIdsに含まれるもののみ）
-    const filteredEdges = allEdges.filter(
-      edge => processIds.has(edge.from_id) && processIds.has(edge.to_id)
-    );
+    // エッジを操作IDからプロセスIDに変換してからフィルタリング
+    const filteredEdges = allEdges
+      .map(edge => ({
+        ...edge,
+        from_process_id: operationToProcessMap.get(edge.from_id),
+        to_process_id: operationToProcessMap.get(edge.to_id),
+      }))
+      .filter(edge =>
+        edge.from_process_id !== undefined &&
+        edge.to_process_id !== undefined &&
+        edge.from_process_id !== edge.to_process_id &&  // 自己ループ除外
+        processIds.has(edge.from_process_id) &&
+        processIds.has(edge.to_process_id)
+      );
 
-    // ProcessEdge形式に変換
+    // ProcessEdge形式に変換（プロセスIDを使用）
     const edges: ProcessEdge[] = filteredEdges.map(e => ({
-      id: `e${e.from_id}-${e.to_id}`,
-      source: e.from_id.toString(),
-      target: e.to_id.toString(),
+      id: `e${e.from_process_id}-${e.to_process_id}`,
+      source: e.from_process_id!.toString(),
+      target: e.to_process_id!.toString(),
     }));
 
     return { nodes: processes, edges };
