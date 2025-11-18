@@ -6,6 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 import { ProtocolListPage } from './pages/ProtocolListPage';
 import { ProtocolDetailPage } from './pages/ProtocolDetailPage';
 import { ProcessViewPage } from './pages/ProcessViewPage'; // ★新規インポート
+import { OperationListPage } from './pages/OperationListPage';
 import NotFound from './pages/NotFound';
 import InternalServerError from './pages/InternalServerError';
 import Forbidden from './pages/Forbidden';
@@ -28,6 +29,7 @@ function App() {
             {/* Redirect old URL pattern to new RESTful route for backward compatibility */}
             <Route path="/protocol_list/:id/processes" element={<RedirectToNewProcessesRoute />} />
             <Route path="/runs/:runId/processes" element={<ProcessViewPage />} /> {/* ★RESTful準拠に変更 */}
+            <Route path="/operations" element={<OperationListPage />} />
             <Route path="/not_found" element={<NotFound />} />
             <Route path="/forbidden" element={<Forbidden />} />
             <Route path="/internal_server_error" element={<InternalServerError />} />

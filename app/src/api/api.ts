@@ -8,6 +8,7 @@ import { DAGEdge } from '../types/dag';
 import { EdgeResponse } from '../types/dag';
 import { Dag } from '../types/dag';
 import { ProcessNode, ProcessDag, ProcessEdge } from '../types/process';
+import { OperationDataItem, OperationWithRunResponse } from '../types/operation';
 
 // const API_BASE_URL = 'http://0.0.0.0:8000';
 const API_BASE_URL = '/log_server_api';
@@ -207,3 +208,47 @@ export const fetchProcesses = async (runId: number): Promise<ProcessDag> => {
     throw new APIError(`Request setup error: ${(error as Error).message}`);
   }
 }
+
+export const fetchAllOperations = async (user_email: string): Promise<OperationDataItem[]> => {
+  try {
+    // ユーザー情報取得
+    const user_response = await axios.get<UserResponse>(`${API_BASE_URL}/users/`, {
+      params: { email: user_email }
+    });
+
+    // オペレーション一覧取得(バックエンドでJOIN済みなのでrun_idが含まれる)
+    const response = await axios.get<OperationWithRunResponse[]>(`${API_BASE_URL}/operations`, {
+      params: { user_id: user_response.data.id }
+    });
+
+    // データ変換
+    const operations: OperationDataItem[] = response.data.map((op) => ({
+      id: op.id.toString(),
+      process_id: op.process_id,
+      run_id: op.run_id, // バックエンドのJOINクエリで取得済み
+      name: op.name,
+      status: op.status,
+      started_at: op.started_at,
+      finished_at: op.finished_at,
+      storage_address: op.storage_address,
+      is_transport: op.is_transport,
+      is_data: op.is_data,
+    }));
+
+    return operations;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'API request failed',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};

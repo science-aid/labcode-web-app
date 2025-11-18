@@ -73,6 +73,10 @@ export const ProcessViewPage: React.FC = () => {
     return <Navigate to="/" replace />;
   }
 
+  const handleViewOperations = (processId: number) => {
+    navigate(`/operations?process_id=${processId}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
@@ -131,7 +135,7 @@ export const ProcessViewPage: React.FC = () => {
               Process Workflow
             </h2>
           </div>
-          <ProcessViewer nodes={nodes} edges={edges} />
+          <ProcessViewer nodes={nodes} edges={edges} onViewOperations={handleViewOperations} />
         </div>
       </main>
     </div>

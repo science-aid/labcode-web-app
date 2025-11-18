@@ -6,6 +6,7 @@ import { Process, Port } from '../../types/process';
 
 interface ProcessDetailsProps {
   process: Process | null;
+  onViewOperations?: (processId: number) => void;
 }
 
 const getStatusStyles = (status: string) => {
@@ -23,7 +24,7 @@ const getStatusStyles = (status: string) => {
   }
 };
 
-export const ProcessDetails: React.FC<ProcessDetailsProps> = ({ process }) => {
+export const ProcessDetails: React.FC<ProcessDetailsProps> = ({ process, onViewOperations }) => {
   const statusStyles = useMemo(() =>
     process ? getStatusStyles(process.status) : '',
     [process?.status]
@@ -124,6 +125,18 @@ export const ProcessDetails: React.FC<ProcessDetailsProps> = ({ process }) => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* View Operations ボタン */}
+      {onViewOperations && (
+        <div className="pt-4 border-t border-gray-300">
+          <button
+            onClick={() => onViewOperations(parseInt(process.id))}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            View Operations
+          </button>
         </div>
       )}
     </div>

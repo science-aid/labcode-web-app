@@ -16,6 +16,7 @@ import { calculateVerticalLayout } from '../../utils/dagLayout'; // 既存関数
 interface ProcessViewerProps {
   nodes: ProcessNodeType[];
   edges: Edge[];
+  onViewOperations?: (processId: number) => void;
 }
 
 // カスタムノードの登録
@@ -23,7 +24,7 @@ const nodeTypes = {
   process: ProcessNode, // ★プロセス用カスタムノード
 };
 
-export const ProcessViewer: React.FC<ProcessViewerProps> = ({ nodes, edges }) => {
+export const ProcessViewer: React.FC<ProcessViewerProps> = ({ nodes, edges, onViewOperations }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null); // ★エッジ選択状態
 
@@ -105,7 +106,7 @@ export const ProcessViewer: React.FC<ProcessViewerProps> = ({ nodes, edges }) =>
         {selectedEdge ? (
           <PortDetails edge={selectedEdge} processes={nodes} />
         ) : (
-          <ProcessDetails process={selectedNode} />
+          <ProcessDetails process={selectedNode} onViewOperations={onViewOperations} />
         )}
       </div>
     </div>

@@ -5,21 +5,14 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
-import { DAGViewer } from '../components/dag/DAGViewer';
 import { fetchRun, fetchUser } from '../api/api';
 import { RunResponse } from '../types/api';
-import { Dag } from '../types/dag';
-import { DAGNode } from '../types/dag';
-import { DAGEdge } from '../types/dag';
-import { fetchOperations } from '../api/api';
 
 
 export const ProtocolDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const [nodes, setNodes] = useState<DAGNode[]>(() => []);
-  const [edges, setEdges] = useState<DAGEdge[]>(() => []);
   const [run, setRun] = useState<RunResponse>(
     {
       id: 0,
@@ -35,24 +28,7 @@ export const ProtocolDetailPage: React.FC = () => {
   ); 
 
   useEffect(() => {
-    // Create a module-specific update function
     const id_num = id ? parseInt(id, 10) : NaN;
-    const updateDag = (newDagData: Dag) => {
-      setNodes(() => [...newDagData.nodes]);
-      setEdges(() => [...newDagData.edges]);
-    }
-
-    const fetchData = async () => {
-      try {
-        const result = await fetchOperations(id_num);
-        updateDag(result);
-      } catch (err) {
-        if (err.status == 404) {
-          navigate('/not_found', { replace: true });
-        }
-        console.error(err);
-      }
-    }
 
     const fetchRunData = async () => {
       try {
@@ -70,7 +46,6 @@ export const ProtocolDetailPage: React.FC = () => {
       }
     }
 
-    fetchData();
     fetchRunData();
   }, []);
 
@@ -135,25 +110,25 @@ export const ProtocolDetailPage: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-200">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Workflow
-              </h2>
-              {/* ★新規追加 - Process view へのリンク */}
+          <div className="px-6 py-5">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Actions
+            </h2>
+            <div className="flex gap-4">
               <button
                 onClick={() => navigate(`/runs/${id}/processes`)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 View Processes
               </button>
+              <button
+                onClick={() => navigate(`/operations?run_id=${id}`)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                View Operations
+              </button>
             </div>
           </div>
-          <DAGViewer nodes={nodes} edges={edges} />
-        {/* nodesをjson形式で表示  */}
-        {/* <pre>{JSON.stringify(nodes, null, 2)}</pre> */}
-        {/* edgesをjson形式で表示  */}
-        {/* <pre>{JSON.stringify(edges, null, 2)}</pre> */}
         </div>
       </main>
     </div>

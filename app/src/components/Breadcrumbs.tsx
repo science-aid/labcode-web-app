@@ -8,7 +8,8 @@ export const Breadcrumbs: React.FC = () => {
 
   const breadcrumbLabels: { [key: string]: string } = {
     protocol_list: 'Run list',
-    protocols: 'Run list'
+    protocols: 'Run list',
+    operations: 'Operation list'
   };
 
   return (
