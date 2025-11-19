@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { StatusBadge } from './StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
 import { DataItem } from '../types/data';
@@ -10,6 +10,12 @@ interface TableRowProps {
 }
 
 export const TableRow: React.FC<TableRowProps> = ({ item }) => {
+  const navigate = useNavigate();
+
+  const handleViewOperations = () => {
+    navigate(`/operations?run_id=${item.id}`);
+  };
+
   return (
     <tr className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
@@ -54,6 +60,14 @@ export const TableRow: React.FC<TableRowProps> = ({ item }) => {
           <span>URL</span>
           <ExternalLink className="w-4 h-4" />
         </a>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm">
+        <button
+          onClick={handleViewOperations}
+          className="text-blue-600 hover:text-blue-800 hover:underline"
+        >
+          View Operations
+        </button>
       </td>
     </tr>
   );
