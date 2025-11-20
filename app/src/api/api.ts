@@ -46,11 +46,26 @@ export const fetchUser = async (user_email: string): Promise<UserResponse> => {
   }
 }
 
-export const fetchRuns = async (user_email: string): Promise<DataItem[]> => {
+/**
+ * ユーザーのラン一覧を取得
+ *
+ * @param user_email - ユーザーのメールアドレス
+ * @param includeHidden - 非表示ランを含むか (デフォルト: false)
+ * @returns ラン一覧
+ */
+export const fetchRuns = async (
+  user_email: string,
+  includeHidden: boolean = false
+): Promise<DataItem[]> => {
   try {
     const data = {params:{email: user_email}}
     const user_response = await axios.get<UserResponse>(`${API_BASE_URL}/users/`, data);
-    const response = await axios.get<DataItem[]>(`${API_BASE_URL}/users/${user_response.data.id}/runs`);
+
+    const response = await axios.get<DataItem[]>(
+      `${API_BASE_URL}/users/${user_response.data.id}/runs`,
+      { params: { include_hidden: includeHidden } }
+    );
+
     // convert id to string
     response.data.forEach(item => {
       item.id = item.id.toString();
@@ -62,6 +77,49 @@ export const fetchRuns = async (user_email: string): Promise<DataItem[]> => {
       if (axiosError.response) {
         throw new APIError(
           'API request failed',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+/**
+ * ランの表示・非表示を切り替える
+ *
+ * 注意: このAPIはFormDataを使用する既存のPATCHエンドポイントと統合されています。
+ *
+ * @param runId - 対象ランのID (string型)
+ * @param visible - 表示するか (true: 表示, false: 非表示)
+ */
+export const updateRunVisibility = async (
+  runId: string,
+  visible: boolean
+): Promise<void> => {
+  try {
+    const formData = new FormData();
+    formData.append('attribute', 'display_visible');
+    formData.append('new_value', visible ? 'true' : 'false');
+
+    await axios.patch(
+      `${API_BASE_URL}/runs/${runId}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    );
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'Failed to update run visibility',
           axiosError.response.status,
           axiosError.response.data
         );

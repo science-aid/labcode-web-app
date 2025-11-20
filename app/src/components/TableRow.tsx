@@ -7,9 +7,11 @@ import { ExternalLink } from 'lucide-react';
 
 interface TableRowProps {
   item: DataItem;
+  selected?: boolean;
+  onSelect?: (id: string) => void;
 }
 
-export const TableRow: React.FC<TableRowProps> = ({ item }) => {
+export const TableRow: React.FC<TableRowProps> = ({ item, selected, onSelect }) => {
   const navigate = useNavigate();
 
   const handleViewOperations = () => {
@@ -17,7 +19,18 @@ export const TableRow: React.FC<TableRowProps> = ({ item }) => {
   };
 
   return (
-    <tr className="hover:bg-gray-50 transition-colors">
+    <tr className={selected ? 'bg-blue-50' : 'hover:bg-gray-50 transition-colors'}>
+      {onSelect && (
+        <td className="px-6 py-4">
+          <input
+            type="checkbox"
+            checked={selected || false}
+            onChange={() => onSelect(item.id)}
+            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+          />
+        </td>
+      )}
+
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
         <Link to={`/protocol_list/${item.id}`} className="hover:underline">
         {item.id}
