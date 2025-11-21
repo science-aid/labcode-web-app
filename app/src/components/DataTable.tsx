@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TableHeader } from './TableHeader';
 import { TableRow } from './TableRow';
 import { DataItem } from '../types/data';
@@ -71,6 +71,11 @@ export const DataTable: React.FC<DataTableProps> = ({
   const [internalSelected, setInternalSelected] = useState<Set<string>>(
     new Set(selectedIds)
   );
+
+  // Sync internal selection state when parent's selectedIds changes
+  useEffect(() => {
+    setInternalSelected(new Set(selectedIds));
+  }, [selectedIds]);
 
   const handleSort = (field: keyof DataItem) => {
     if (sortField === field) {

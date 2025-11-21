@@ -9,7 +9,50 @@ export const Breadcrumbs: React.FC = () => {
   const breadcrumbLabels: { [key: string]: string } = {
     protocol_list: 'Run list',
     protocols: 'Run list',
-    operations: 'Operation list'
+    operations: 'Operation list',
+    runs: 'Run list',
+    processes: 'Process View'
+  };
+
+  // Determine if a breadcrumb segment should be clickable
+  const isClickable = (index: number): boolean => {
+    const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
+    const isLast = index === pathnames.length - 1;
+
+    // Last segment is never clickable
+    if (isLast) return false;
+
+    // Define valid routes that can be navigated to
+    const validRoutes = [
+      '/protocol_list',
+      '/operations'
+    ];
+
+    // Check if it's a valid route
+    if (validRoutes.includes(routeTo)) return true;
+
+    // For /runs/:id/processes pattern, make "runs" link to /protocol_list
+    if (pathnames[0] === 'runs' && index === 0) {
+      return true; // Will be handled specially
+    }
+
+    // Check if it's a detail page pattern like /protocol_list/:id
+    if (pathnames[0] === 'protocol_list' && pathnames.length >= 2 && index <= 1) {
+      return true;
+    }
+
+    // Otherwise, not clickable
+    return false;
+  };
+
+  // Get the actual route to navigate to
+  const getRouteTarget = (index: number): string => {
+    // Special case: "runs" should link to /protocol_list
+    if (pathnames[0] === 'runs' && index === 0) {
+      return '/protocol_list';
+    }
+
+    return `/${pathnames.slice(0, index + 1).join('/')}`;
   };
 
   return (
@@ -21,15 +64,18 @@ export const Breadcrumbs: React.FC = () => {
         <Home className="w-4 h-4" />
       </Link>
       {pathnames.map((name, index) => {
-        const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
         const isLast = index === pathnames.length - 1;
         const label = breadcrumbLabels[name] || name;
+        const clickable = isClickable(index);
+        const routeTo = getRouteTarget(index);
 
         return (
-          <React.Fragment key={routeTo}>
+          <React.Fragment key={`${routeTo}-${index}`}>
             <ChevronRight className="w-4 h-4 text-gray-400" />
-            {isLast ? (
-              <span className="font-medium text-gray-900">{label}</span>
+            {isLast || !clickable ? (
+              <span className={isLast ? 'font-medium text-gray-900' : 'text-gray-500'}>
+                {label}
+              </span>
             ) : (
               <Link
                 to={routeTo}

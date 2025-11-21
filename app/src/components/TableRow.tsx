@@ -18,8 +18,15 @@ export const TableRow: React.FC<TableRowProps> = ({ item, selected, onSelect }) 
     navigate(`/operations?run_id=${item.id}`);
   };
 
+  // Determine background color based on selection and visibility
+  const getRowClassName = () => {
+    if (selected) return 'bg-blue-50';
+    if (!item.display_visible) return 'bg-gray-100 hover:bg-gray-150 transition-colors';
+    return 'hover:bg-gray-50 transition-colors';
+  };
+
   return (
-    <tr className={selected ? 'bg-blue-50' : 'hover:bg-gray-50 transition-colors'}>
+    <tr className={getRowClassName()}>
       {onSelect && (
         <td className="px-6 py-4">
           <input
