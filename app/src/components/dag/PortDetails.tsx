@@ -21,16 +21,16 @@ export const PortDetails: React.FC<PortDetailsProps> = ({ edge, processes }) => 
   const sourceProcess = processes.find(p => p.id === edge.source);
   const targetProcess = processes.find(p => p.id === edge.target);
 
-  // エッジのデータから出力ポート・入力ポートを取得
-  const sourcePort = edge.data?.sourcePort || edge.sourceHandle;
-  const targetPort = edge.data?.targetPort || edge.targetHandle;
+  // エッジからポートIDを取得（edgeオブジェクトの直接のプロパティとして）
+  const sourcePortId = (edge as any).sourcePort;
+  const targetPortId = (edge as any).targetPort;
 
   // プロセスのポート情報から詳細を取得
   const sourcePortDetails = sourceProcess?.ports?.output?.find(
-    (p: Port) => p.id === sourcePort || p.name === sourcePort
+    (p: Port) => p.id === sourcePortId
   );
   const targetPortDetails = targetProcess?.ports?.input?.find(
-    (p: Port) => p.id === targetPort || p.name === targetPort
+    (p: Port) => p.id === targetPortId
   );
 
   return (

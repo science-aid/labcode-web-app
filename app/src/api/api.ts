@@ -198,7 +198,7 @@ export const fetchRun = async (run_id: number): Promise<RunResponse> => {
   }
 }
 
-// プロセス一覧とエッジを取得（Bug-4, Bug-5対応, 操作ID→プロセスID変換対応）
+// プロセス一覧とエッジを取得（Bug-4, Bug-5対応, 操作ID→プロセスID変換対応, ポート情報対応）
 export const fetchProcesses = async (runId: number): Promise<ProcessDag> => {
   try {
     // プロセス一覧を取得
@@ -224,6 +224,31 @@ export const fetchProcesses = async (runId: number): Promise<ProcessDag> => {
     const edgesResponse = await axios.get<EdgeResponse[]>(`${API_BASE_URL}/edges/run/${runId}`);
     const allEdges: EdgeResponse[] = edgesResponse.data;
 
+    // ポート接続情報を取得
+    const connectionsResponse = await axios.get(`${API_BASE_URL}/runs/${runId}/connections`);
+    const connections: Array<{
+      connection_id: number;
+      run_id: number;
+      source_process_id: number;
+      source_process_name: string;
+      source_port_id: number;
+      source_port_name: string;
+      target_process_id: number;
+      target_process_name: string;
+      target_port_id: number;
+      target_port_name: string;
+    }> = connectionsResponse.data;
+
+    // プロセスIDペア → ポート情報のマッピング
+    const portConnectionMap = new Map<string, { sourcePortId: string; targetPortId: string }>();
+    connections.forEach(conn => {
+      const key = `${conn.source_process_id}-${conn.target_process_id}`;
+      portConnectionMap.set(key, {
+        sourcePortId: conn.source_port_id.toString(),
+        targetPortId: conn.target_port_id.toString(),
+      });
+    });
+
     // プロセスIDのセットを作成（input/output除外済み）
     const processIds = new Set(processes.map(p => parseInt(p.id)));
 
@@ -242,12 +267,19 @@ export const fetchProcesses = async (runId: number): Promise<ProcessDag> => {
         processIds.has(edge.to_process_id)
       );
 
-    // ProcessEdge形式に変換（プロセスIDを使用）
-    const edges: ProcessEdge[] = filteredEdges.map(e => ({
-      id: `e${e.from_process_id}-${e.to_process_id}`,
-      source: e.from_process_id!.toString(),
-      target: e.to_process_id!.toString(),
-    }));
+    // ProcessEdge形式に変換（プロセスIDとポート情報を使用）
+    const edges: ProcessEdge[] = filteredEdges.map(e => {
+      const portKey = `${e.from_process_id}-${e.to_process_id}`;
+      const portInfo = portConnectionMap.get(portKey);
+
+      return {
+        id: `e${e.from_process_id}-${e.to_process_id}`,
+        source: e.from_process_id!.toString(),
+        target: e.to_process_id!.toString(),
+        sourcePort: portInfo?.sourcePortId,
+        targetPort: portInfo?.targetPortId,
+      };
+    });
 
     return { nodes: processes, edges };
   } catch (error) {
