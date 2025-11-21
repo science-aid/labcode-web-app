@@ -3,18 +3,23 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { LoginPage } from './pages/LoginPage';
-import { ProtocolListPage } from './pages/ProtocolListPage';
-import { ProtocolDetailPage } from './pages/ProtocolDetailPage';
+import { RunListPage } from './pages/RunListPage';
+import { RunDetailPage } from './pages/RunDetailPage';
 import { ProcessViewPage } from './pages/ProcessViewPage'; // ★新規インポート
 import { OperationListPage } from './pages/OperationListPage';
 import NotFound from './pages/NotFound';
 import InternalServerError from './pages/InternalServerError';
 import Forbidden from './pages/Forbidden';
 
-// Redirect component for backward compatibility
+// Redirect components for backward compatibility
 const RedirectToNewProcessesRoute = () => {
   const { id } = useParams<{ id: string }>();
   return <Navigate to={`/runs/${id}/processes`} replace />;
+};
+
+const RedirectToRuns = () => {
+  const { id } = useParams<{ id: string }>();
+  return id ? <Navigate to={`/runs/${id}`} replace /> : <Navigate to="/runs" replace />;
 };
 
 function App() {
@@ -24,12 +29,16 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<LoginPage />} />
-            <Route path="/protocol_list" element={<ProtocolListPage />} />
-            <Route path="/protocol_list/:id" element={<ProtocolDetailPage />} />
-            {/* Redirect old URL pattern to new RESTful route for backward compatibility */}
-            <Route path="/protocol_list/:id/processes" element={<RedirectToNewProcessesRoute />} />
-            <Route path="/runs/:runId/processes" element={<ProcessViewPage />} /> {/* ★RESTful準拠に変更 */}
+            {/* Main routes - RESTful design */}
+            <Route path="/runs" element={<RunListPage />} />
+            <Route path="/runs/:id" element={<RunDetailPage />} />
+            <Route path="/runs/:runId/processes" element={<ProcessViewPage />} />
             <Route path="/operations" element={<OperationListPage />} />
+            {/* Redirect old URL patterns for backward compatibility */}
+            <Route path="/protocol_list" element={<RedirectToRuns />} />
+            <Route path="/protocol_list/:id" element={<RedirectToRuns />} />
+            <Route path="/protocol_list/:id/processes" element={<RedirectToNewProcessesRoute />} />
+            {/* Error pages */}
             <Route path="/not_found" element={<NotFound />} />
             <Route path="/forbidden" element={<Forbidden />} />
             <Route path="/internal_server_error" element={<InternalServerError />} />

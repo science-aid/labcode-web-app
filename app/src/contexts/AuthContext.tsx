@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setUser(newUser);
         localStorage.setItem('user', JSON.stringify(newUser));
-        navigate('/protocol_list');
+        navigate('/runs');
       } catch (error) {
         console.error('Error fetching user info:', error);
       } finally {

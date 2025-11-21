@@ -9,7 +9,7 @@ import { fetchRun, fetchUser } from '../api/api';
 import { RunResponse } from '../types/api';
 
 
-export const ProtocolDetailPage: React.FC = () => {
+export const RunDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();

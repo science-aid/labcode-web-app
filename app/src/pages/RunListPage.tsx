@@ -14,7 +14,7 @@ import { APIError } from '../api/api';
 import { DataItem } from '../types/data';
 // import { mockData } from '../data/mockData';
 
-export const ProtocolListPage: React.FC = () => {
+export const RunListPage: React.FC = () => {
   const { user } = useAuth();
   const [data, setData] = React.useState<DataItem[]>([]);
   const [error, setError] = React.useState<string | null>(null);

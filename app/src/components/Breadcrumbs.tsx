@@ -7,8 +7,6 @@ export const Breadcrumbs: React.FC = () => {
   const pathnames = location.pathname.split('/').filter(x => x);
 
   const breadcrumbLabels: { [key: string]: string } = {
-    protocol_list: 'Run list',
-    protocols: 'Run list',
     operations: 'Operation list',
     runs: 'Run list',
     processes: 'Process View'
@@ -24,20 +22,20 @@ export const Breadcrumbs: React.FC = () => {
 
     // Define valid routes that can be navigated to
     const validRoutes = [
-      '/protocol_list',
+      '/runs',
       '/operations'
     ];
 
     // Check if it's a valid route
     if (validRoutes.includes(routeTo)) return true;
 
-    // For /runs/:id/processes pattern, make "runs" link to /protocol_list
+    // For /runs/:id or /runs/:id/processes patterns, make "runs" clickable
     if (pathnames[0] === 'runs' && index === 0) {
-      return true; // Will be handled specially
+      return true;
     }
 
-    // Check if it's a detail page pattern like /protocol_list/:id
-    if (pathnames[0] === 'protocol_list' && pathnames.length >= 2 && index <= 1) {
+    // Check if it's a detail page pattern like /runs/:id
+    if (pathnames[0] === 'runs' && pathnames.length >= 2 && index <= 1) {
       return true;
     }
 
@@ -47,11 +45,6 @@ export const Breadcrumbs: React.FC = () => {
 
   // Get the actual route to navigate to
   const getRouteTarget = (index: number): string => {
-    // Special case: "runs" should link to /protocol_list
-    if (pathnames[0] === 'runs' && index === 0) {
-      return '/protocol_list';
-    }
-
     return `/${pathnames.slice(0, index + 1).join('/')}`;
   };
 

@@ -39,7 +39,7 @@ export const TableRow: React.FC<TableRowProps> = ({ item, selected, onSelect }) 
       )}
 
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
-        <Link to={`/protocol_list/${item.id}`} className="hover:underline">
+        <Link to={`/runs/${item.id}`} className="hover:underline">
         {item.id}
         </Link>
       </td>

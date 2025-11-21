@@ -32,7 +32,7 @@ export const OperationTableRow: React.FC<OperationTableRowProps> = ({ item }) =>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">
         <button
-          onClick={() => navigate(`/protocol_list`)}
+          onClick={() => navigate(`/runs`)}
           className="text-blue-600 hover:text-blue-800 hover:underline"
         >
           {item.run_id}
