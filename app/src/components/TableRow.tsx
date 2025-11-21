@@ -18,15 +18,30 @@ export const TableRow: React.FC<TableRowProps> = ({ item, selected, onSelect }) 
     navigate(`/operations?run_id=${item.id}`);
   };
 
+  const handleRowClick = (e: React.MouseEvent<HTMLTableRowElement>) => {
+    // Don't navigate if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (
+      target.tagName === 'INPUT' || // checkbox
+      target.tagName === 'BUTTON' || // View Operations button
+      target.tagName === 'A' || // external link
+      target.closest('a') || // clicked inside a link
+      target.closest('button') // clicked inside a button
+    ) {
+      return;
+    }
+    navigate(`/runs/${item.id}`);
+  };
+
   // Determine background color based on selection and visibility
   const getRowClassName = () => {
-    if (selected) return 'bg-blue-50';
-    if (!item.display_visible) return 'bg-gray-100 hover:bg-gray-150 transition-colors';
-    return 'hover:bg-gray-50 transition-colors';
+    if (selected) return 'bg-blue-50 cursor-pointer';
+    if (!item.display_visible) return 'bg-gray-100 hover:bg-blue-100 transition-colors cursor-pointer';
+    return 'hover:bg-blue-50 transition-colors cursor-pointer';
   };
 
   return (
-    <tr className={getRowClassName()}>
+    <tr className={getRowClassName()} onClick={handleRowClick}>
       {onSelect && (
         <td className="px-6 py-4">
           <input
