@@ -13,6 +13,7 @@ export interface ProcessNode {
   updated_at: string;
   started_at?: string;
   finished_at?: string;
+  storage_address?: string;
 }
 
 // Process型のエイリアス（後方互換性のため）

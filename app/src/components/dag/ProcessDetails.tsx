@@ -61,6 +61,20 @@ export const ProcessDetails: React.FC<ProcessDetailsProps> = ({ process, onViewO
               { label: "Process ID", value: process.id },
               { label: "Start datetime", value: process.started_at ? formatDateTime(process.started_at) : "Not started" },
               { label: "Finish datetime", value: process.finished_at ? formatDateTime(process.finished_at) : "Not finished" },
+              {
+                label: "Storage address",
+                value: process.storage_address ? (
+                  <a
+                    href={process.storage_address}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    <span>URL</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                ) : "Not available"
+              },
             ].map((item, index) => (
               <tr key={index} className="border border-gray-300">
                 <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">{item.label}</td>
