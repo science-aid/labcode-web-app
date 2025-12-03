@@ -5,54 +5,49 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
-import { DAGViewer } from '../components/dag/DAGViewer';
-import { fetchRun, fetchUser } from '../api/api';
+import { ProcessViewer } from '../components/dag/ProcessViewer'; // ★新規コンポーネント
+import { fetchProcesses, fetchRun, fetchUser } from '../api/api'; // ★fetchProcesses実装済み
 import { RunResponse } from '../types/api';
-import { Dag } from '../types/dag';
-import { DAGNode } from '../types/dag';
-import { DAGEdge } from '../types/dag';
-import { fetchOperations } from '../api/api';
+import { ProcessNode, ProcessEdge } from '../types/process'; // ★新規型定義
+import { Edge } from 'reactflow';
 
-
-export const ProtocolDetailPage: React.FC = () => {
+export const ProcessViewPage: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { runId } = useParams<{ runId: string }>(); // Run ID (RESTful準拠)
   const { user } = useAuth();
-  const [nodes, setNodes] = useState<DAGNode[]>(() => []);
-  const [edges, setEdges] = useState<DAGEdge[]>(() => []);
-  const [run, setRun] = useState<RunResponse>(
-    {
-      id: 0,
-      project_id: 0,
-      protocol_id: 0,
-      user_id: 0,
-      added_at: "",
-      started_at: "",
-      finished_at: "",
-      status: "completed",
-      storage_address: ""
-    }
-  ); 
+  const [nodes, setNodes] = useState<ProcessNode[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const [run, setRun] = useState<RunResponse>({
+    id: 0,
+    project_id: 0,
+    protocol_id: 0,
+    user_id: 0,
+    added_at: "",
+    started_at: "",
+    finished_at: "",
+    status: "completed",
+    storage_address: ""
+  });
 
   useEffect(() => {
-    // Create a module-specific update function
-    const id_num = id ? parseInt(id, 10) : NaN;
-    const updateDag = (newDagData: Dag) => {
-      setNodes(() => [...newDagData.nodes]);
-      setEdges(() => [...newDagData.edges]);
-    }
+    const id_num = runId ? parseInt(runId, 10) : NaN;
+
+    const updateDag = (newDagData: { nodes: ProcessNode[], edges: ProcessEdge[] }) => {
+      setNodes([...newDagData.nodes]);
+      setEdges([...newDagData.edges]);
+    };
 
     const fetchData = async () => {
       try {
-        const result = await fetchOperations(id_num);
+        const result = await fetchProcesses(id_num); // ★API呼び出し実装済み
         updateDag(result);
-      } catch (err) {
+      } catch (err: any) {
         if (err.status == 404) {
           navigate('/not_found', { replace: true });
         }
         console.error(err);
       }
-    }
+    };
 
     const fetchRunData = async () => {
       try {
@@ -62,31 +57,33 @@ export const ProtocolDetailPage: React.FC = () => {
           navigate('/forbidden', { replace: true });
         }
         setRun(result);
-      } catch (err) {
+      } catch (err: any) {
         if (err.status == 404) {
           navigate('/not_found', { replace: true });
         }
         console.error(err);
       }
-    }
+    };
 
-    fetchData();
+    fetchData();  // ★実行
     fetchRunData();
-  }, []);
+  }, [runId, navigate, user.email]);
 
   if (!user) {
     return <Navigate to="/" replace />;
   }
 
+  const handleViewOperations = (processId: number) => {
+    navigate(`/operations?process_id=${processId}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
-        {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4"> */}
         <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-gray-900">Run detail</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Process View</h1>
               <Breadcrumbs />
             </div>
             <div className="w-64">
@@ -95,13 +92,11 @@ export const ProtocolDetailPage: React.FC = () => {
           </div>
         </div>
       </header>
-      {/* <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6"> */}
       <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
               Run ID: {run.id}
-              {/* プロトコル {protocol.id} */}
             </h2>
           </div>
           <div className="px-6 py-5 space-y-6">
@@ -137,18 +132,12 @@ export const ProtocolDetailPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
-              Workflow
+              Process Workflow
             </h2>
           </div>
-          <DAGViewer nodes={nodes} edges={edges} />
-        {/* nodesをjson形式で表示  */}
-        {/* <pre>{JSON.stringify(nodes, null, 2)}</pre> */}
-        {/* edgesをjson形式で表示  */}
-        {/* <pre>{JSON.stringify(edges, null, 2)}</pre> */}
+          <ProcessViewer nodes={nodes} edges={edges} onViewOperations={handleViewOperations} />
         </div>
       </main>
     </div>
   );
 };
-
-

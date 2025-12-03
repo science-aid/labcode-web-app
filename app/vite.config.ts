@@ -19,7 +19,7 @@ export default defineConfig({
       '/log_server_api': {
         target: 'http://log_server:8000',
         changeOrigin: true,
-        rewrite: (path: string) => path.replace(/^\/log_server_api/, ''),
+        rewrite: (path: string) => path.replace(/^\/log_server_api/, '/api'),
         configure: (proxy, _options) => {
                   proxy.on('proxyRes', (proxyRes, _req, _res) => {
                     proxyRes.headers['Access-Control-Allow-Origin'] = '*';

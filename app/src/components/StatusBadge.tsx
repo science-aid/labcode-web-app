@@ -1,13 +1,14 @@
 import React from 'react';
 import { CheckCircle, Clock, XCircle } from 'lucide-react';
 import { RunStatus } from '../types/data';
+import { OperationStatus } from '../types/operation';
 
 interface StatusBadgeProps {
-  status: RunStatus;
+  status: RunStatus | OperationStatus;
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-  const getStatusStyles = (status: RunStatus) => {
+  const getStatusStyles = (status: RunStatus | OperationStatus) => {
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
@@ -20,7 +21,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     }
   };
 
-  const getStatusIcon = (status: RunStatus) => {
+  const getStatusIcon = (status: RunStatus | OperationStatus) => {
     switch (status) {
       case 'completed':
         return <CheckCircle className="w-4 h-4" />;

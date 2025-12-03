@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TableHeader } from './TableHeader';
 import { TableRow } from './TableRow';
 import { DataItem } from '../types/data';
@@ -6,6 +6,8 @@ import { RunStatus } from '../types/data';
 
 interface DataTableProps {
   data: readonly DataItem[];
+  selectedIds?: string[];
+  onSelectionChange?: (ids: string[]) => void;
 }
 
 
@@ -57,10 +59,23 @@ const columns = [
   // { key: 'protocolUrl' as const, label: 'プロトコルURL' },
 ];
 
-export const DataTable: React.FC<DataTableProps> = ({ data }) => {
+export const DataTable: React.FC<DataTableProps> = ({
+  data,
+  selectedIds = [],
+  onSelectionChange
+}) => {
   const [sortField, setSortField] = useState<keyof DataItem>('added_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [filters, setFilters] = useState<Filters>({});
+
+  const [internalSelected, setInternalSelected] = useState<Set<string>>(
+    new Set(selectedIds)
+  );
+
+  // Sync internal selection state when parent's selectedIds changes
+  useEffect(() => {
+    setInternalSelected(new Set(selectedIds));
+  }, [selectedIds]);
 
   const handleSort = (field: keyof DataItem) => {
     if (sortField === field) {
@@ -89,7 +104,7 @@ export const DataTable: React.FC<DataTableProps> = ({ data }) => {
   const sortedData = [...filteredData].sort((a, b) => {
     const aValue = a[sortField];
     const bValue = b[sortField];
-    
+
     if (sortDirection === 'asc') {
       return aValue < bValue ? -1 : 1;
     } else {
@@ -97,12 +112,45 @@ export const DataTable: React.FC<DataTableProps> = ({ data }) => {
     }
   });
 
+  const handleToggleRow = (id: string) => {
+    const newSelected = new Set(internalSelected);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setInternalSelected(newSelected);
+    onSelectionChange?.(Array.from(newSelected));
+  };
+
+  const handleSelectAll = () => {
+    const allIds = new Set(sortedData.map(item => item.id));
+    setInternalSelected(allIds);
+    onSelectionChange?.(Array.from(allIds));
+  };
+
+  const handleDeselectAll = () => {
+    setInternalSelected(new Set());
+    onSelectionChange?.([]);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+              {onSelectionChange && (
+                <th scope="col" className="px-6 py-3">
+                  <input
+                    type="checkbox"
+                    checked={internalSelected.size === sortedData.length && sortedData.length > 0}
+                    onChange={(e) => e.target.checked ? handleSelectAll() : handleDeselectAll()}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                </th>
+              )}
+
               {columns.map((column) => (
                 <TableHeader
                   key={column.key}
@@ -114,11 +162,20 @@ export const DataTable: React.FC<DataTableProps> = ({ data }) => {
                   onFilterChange={(value) => handleFilterChange(column.key, value)}
                 />
               ))}
+              {/* ★ 新規: Actions ヘッダー */}
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {sortedData.map((item) => (
-              <TableRow key={item.id} item={item} />
+              <TableRow
+                key={item.id}
+                item={item}
+                selected={onSelectionChange ? internalSelected.has(item.id) : undefined}
+                onSelect={onSelectionChange ? handleToggleRow : undefined}
+              />
             ))}
           </tbody>
         </table>

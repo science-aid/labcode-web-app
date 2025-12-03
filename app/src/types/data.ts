@@ -12,6 +12,7 @@ export interface DataItem {
   finished_at: string | null;
   status: RunStatus;
   storage_address: string;
+  display_visible: boolean;
 }
 
 export interface User {

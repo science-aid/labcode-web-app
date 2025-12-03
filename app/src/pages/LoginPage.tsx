@@ -7,7 +7,7 @@ export const LoginPage: React.FC = () => {
   const { user } = useAuth();
 
   if (user) {
-    return <Navigate to="/protocol_list" replace />;
+    return <Navigate to="/runs" replace />;
   }
 
   return (

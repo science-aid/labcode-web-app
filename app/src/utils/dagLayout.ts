@@ -11,6 +11,17 @@ interface Node {
 }
 
 export const calculateVerticalLayout = (nodes: Node[], edges: { source: string; target: string }[]) => {
+  // エッジが0件の場合、単純な垂直レイアウトを返す（防御的対策）
+  if (edges.length === 0) {
+    return nodes.map((node, index) => ({
+      ...node,
+      position: {
+        x: 100,  // 固定X座標
+        y: index * 150  // 垂直に等間隔で配置
+      }
+    }));
+  }
+
   // Create a new dagre graph
   const g = new dagre.graphlib.Graph();
 
