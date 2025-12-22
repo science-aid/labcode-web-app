@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { StatusBadge } from './StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
 import { DataItem } from '../types/data';
-import { ExternalLink } from 'lucide-react';
+import { StorageModeBadge } from './common/StorageModeBadge';
 
 interface TableRowProps {
   item: DataItem;
@@ -13,10 +13,6 @@ interface TableRowProps {
 
 export const TableRow: React.FC<TableRowProps> = ({ item, selected, onSelect }) => {
   const navigate = useNavigate();
-
-  const handleViewOperations = () => {
-    navigate(`/operations?run_id=${item.id}`);
-  };
 
   const handleRowClick = (e: React.MouseEvent<HTMLTableRowElement>) => {
     // Don't navigate if clicking on interactive elements
@@ -82,27 +78,8 @@ export const TableRow: React.FC<TableRowProps> = ({ item, selected, onSelect }) 
       <td className="px-6 py-4 whitespace-nowrap">
         <StatusBadge status={item.status} />
       </td>
-      {/* <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
-        {item.storage_address}
-      </td> */}
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        <a
-          href={item.storage_address}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline"
-        >
-          <span>URL</span>
-          <ExternalLink className="w-4 h-4" />
-        </a>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <button
-          onClick={handleViewOperations}
-          className="text-blue-600 hover:text-blue-800 hover:underline"
-        >
-          View Operations
-        </button>
+        <StorageModeBadge mode={item.storage_mode} />
       </td>
     </tr>
   );

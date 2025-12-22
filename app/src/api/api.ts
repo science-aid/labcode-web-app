@@ -9,6 +9,13 @@ import { EdgeResponse } from '../types/dag';
 import { Dag } from '../types/dag';
 import { ProcessNode, ProcessDag, ProcessEdge } from '../types/process';
 import { OperationDataItem, OperationWithRunResponse } from '../types/operation';
+import {
+  StorageListResponse,
+  StoragePreviewResponse,
+  StorageDownloadResponse,
+  SortBy,
+  SortOrder
+} from '../types/storage';
 
 // const API_BASE_URL = 'http://0.0.0.0:8000';
 const API_BASE_URL = '/log_server_api';
@@ -332,6 +339,288 @@ export const fetchAllOperations = async (user_email: string): Promise<OperationD
       if (axiosError.response) {
         throw new APIError(
           'API request failed',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+// ==================== Storage Info APIs ====================
+
+/**
+ * ストレージ情報レスポンス型
+ */
+export interface StorageInfoResponse {
+  mode: 's3' | 'local';
+  bucket_name?: string;
+  local_path?: string;
+  db_path?: string;
+}
+
+/**
+ * ストレージモード情報を取得
+ *
+ * @returns ストレージモード情報
+ */
+export const fetchStorageInfo = async (): Promise<StorageInfoResponse> => {
+  try {
+    const response = await axios.get<StorageInfoResponse>(
+      `${API_BASE_URL}/storage/info`
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'Failed to fetch storage info',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+// ==================== Storage APIs ====================
+
+/**
+ * S3ストレージ内のファイル・フォルダ一覧を取得
+ *
+ * @param prefix - S3プレフィックス（例: runs/1/）
+ * @param sortBy - ソート対象（name, size, last_modified）
+ * @param order - ソート順（asc, desc）
+ * @param page - ページ番号
+ * @param perPage - 1ページあたりの件数
+ * @returns ファイル一覧レスポンス
+ */
+export const fetchStorageList = async (
+  prefix: string,
+  sortBy: SortBy = 'name',
+  order: SortOrder = 'asc',
+  page: number = 1,
+  perPage: number = 50
+): Promise<StorageListResponse> => {
+  try {
+    const response = await axios.get<StorageListResponse>(
+      `${API_BASE_URL}/storage/list`,
+      {
+        params: {
+          prefix,
+          sort_by: sortBy,
+          order,
+          page,
+          per_page: perPage
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'Failed to fetch storage list',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+/**
+ * テキストファイルの内容をプレビュー取得
+ *
+ * @param filePath - S3キー（例: runs/1/output.json）
+ * @param maxLines - 最大行数（デフォルト: 1000）
+ * @returns プレビューレスポンス
+ */
+export const fetchStoragePreview = async (
+  filePath: string,
+  maxLines: number = 1000
+): Promise<StoragePreviewResponse> => {
+  try {
+    const response = await axios.get<StoragePreviewResponse>(
+      `${API_BASE_URL}/storage/preview`,
+      {
+        params: {
+          file_path: filePath,
+          max_lines: maxLines
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'Failed to fetch file preview',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+/**
+ * ダウンロード用の事前署名URLを取得
+ *
+ * @param filePath - S3キー（例: runs/1/output.json）
+ * @param expiresIn - 有効期限（秒）、デフォルト3600秒（1時間）
+ * @returns ダウンロードURLレスポンス
+ */
+export const fetchStorageDownloadUrl = async (
+  filePath: string,
+  expiresIn: number = 3600
+): Promise<StorageDownloadResponse> => {
+  try {
+    const response = await axios.get<StorageDownloadResponse>(
+      `${API_BASE_URL}/storage/download`,
+      {
+        params: {
+          file_path: filePath,
+          expires_in: expiresIn
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'Failed to get download URL',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+// ==================== Batch Download APIs ====================
+
+/**
+ * バッチダウンロードの推定サイズレスポンス型
+ */
+export interface BatchDownloadEstimate {
+  run_count: number;
+  estimated_size: number;
+  estimated_size_mb: number;
+  can_download: boolean;
+  message?: string;
+}
+
+/**
+ * バッチダウンロードの推定サイズを取得
+ *
+ * @param runIds - ダウンロード対象のランIDリスト
+ * @returns 推定サイズ情報
+ */
+export const estimateBatchDownload = async (
+  runIds: string[]
+): Promise<BatchDownloadEstimate> => {
+  try {
+    const response = await axios.post<BatchDownloadEstimate>(
+      `${API_BASE_URL}/storage/batch-download/estimate`,
+      { run_ids: runIds.map(id => parseInt(id, 10)) }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'Failed to estimate batch download size',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+/**
+ * 複数ランのファイルをZIP形式で一括ダウンロード
+ *
+ * @param runIds - ダウンロード対象のランIDリスト
+ */
+export const downloadRunsAsZip = async (
+  runIds: string[]
+): Promise<void> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/storage/batch-download`,
+      { run_ids: runIds.map(id => parseInt(id, 10)) },
+      { responseType: 'blob' }
+    );
+
+    // Content-Dispositionからファイル名を取得
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = 'labcode_runs.zip';
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?([^";\n]+)"?/);
+      if (match) {
+        filename = match[1];
+      }
+    }
+
+    // Blobを作成してダウンロード
+    const blob = new Blob([response.data], { type: 'application/zip' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        // Blobエラーレスポンスをテキストに変換
+        if (axiosError.response.data instanceof Blob) {
+          const text = await (axiosError.response.data as Blob).text();
+          try {
+            const errorData = JSON.parse(text);
+            throw new APIError(
+              errorData.detail || 'Failed to download files',
+              axiosError.response.status,
+              errorData
+            );
+          } catch {
+            throw new APIError(
+              'Failed to download files',
+              axiosError.response.status
+            );
+          }
+        }
+        throw new APIError(
+          'Failed to download files',
           axiosError.response.status,
           axiosError.response.data
         );

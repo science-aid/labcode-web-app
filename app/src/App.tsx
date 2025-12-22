@@ -2,6 +2,7 @@
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { StorageProvider } from './contexts/StorageContext';
 import { LoginPage } from './pages/LoginPage';
 import { RunListPage } from './pages/RunListPage';
 import { RunDetailPage } from './pages/RunDetailPage';
@@ -27,6 +28,7 @@ function App() {
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <BrowserRouter>
         <AuthProvider>
+          <StorageProvider>
           <Routes>
             <Route path="/" element={<LoginPage />} />
             {/* Main routes - RESTful design */}
@@ -44,6 +46,7 @@ function App() {
             <Route path="/internal_server_error" element={<InternalServerError />} />
             <Route path="*" element={<Navigate to="/not_found" replace />} />
           </Routes>
+          </StorageProvider>
         </AuthProvider>
       </BrowserRouter>
     </GoogleOAuthProvider>

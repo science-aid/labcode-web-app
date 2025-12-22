@@ -12,6 +12,7 @@ export interface DataItem {
   finished_at: string | null;
   status: RunStatus;
   storage_address: string;
+  storage_mode?: 's3' | 'local' | null;  // ★追加: Run作成時のストレージモード
   display_visible: boolean;
 }
 

@@ -6,6 +6,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { VisibilityToggle } from '../components/VisibilityToggle';
 import { SelectionControls } from '../components/SelectionControls';
 import { BulkVisibilityControls } from '../components/BulkVisibilityControls';
+import { BatchDownloadButton } from '../components/BatchDownloadButton';
 import { useAuth } from '../contexts/AuthContext';
 // import { mockData } from '../data/mockData';
 import { fetchRuns, updateRunVisibility } from '../api/api';
@@ -152,6 +153,17 @@ export const RunListPage: React.FC = () => {
           onHideSelected={handleHideSelected}
           isProcessing={isProcessing}
         />
+
+        {/* バッチダウンロードボタン */}
+        <div className="mb-4">
+          <BatchDownloadButton
+            selectedRunIds={selectedRunIds}
+            isProcessing={isProcessing}
+            onDownloadStart={() => setIsProcessing(true)}
+            onDownloadComplete={() => setIsProcessing(false)}
+            onDownloadError={() => setIsProcessing(false)}
+          />
+        </div>
 
         {selectedRunIds.length > 0 && (
           <SelectionControls
