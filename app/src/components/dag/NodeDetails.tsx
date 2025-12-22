@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { formatDateTime } from '../../utils/dateFormatter';
 import { StatusBadge } from '../StatusBadge';
-import { ExternalLink } from 'lucide-react';
+import { StorageAddressLink } from '../common/StorageAddressLink';
 
 interface NodeDetailsProps {
   node: any; // 型を変更して柔軟に対応
@@ -55,9 +55,9 @@ export const NodeDetails: React.FC<NodeDetailsProps> = ({ node }) => {
                   { label: "Operation ID", value: node.id },
                   { label: "Start datetime", value: node.started_at ? formatDateTime(node.started_at) : "Not started" },
                   { label: "Finish datetime", value: node.finished_at ? formatDateTime(node.finished_at) : "Not finished" },
-                  { label: "Operation storage address", value: <a href={node.storage_address} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline" > <span>{node.storage_address}</span> <ExternalLink className="w-4 h-4" /> </a> },
+                  { label: "Operation storage address", value: <StorageAddressLink address={node.storage_address} showFullPath={true} /> },
                   { label: "Process ID", value: node.process_name },
-                  { label: "Process storage address", value: <a href={node.process_storage_address} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline" > <span>{node.process_storage_address}</span> <ExternalLink className="w-4 h-4" /> </a> },
+                  { label: "Process storage address", value: <StorageAddressLink address={node.process_storage_address} showFullPath={true} /> },
                   { label: "Log", value: node.log }
                 ].map((item, index) => (
                   <tr key={index} className="border border-gray-300">

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { formatDateTime } from '../../utils/dateFormatter';
 import { StatusBadge } from '../StatusBadge';
-import { ExternalLink } from 'lucide-react';
+import { StorageAddressLink } from '../common/StorageAddressLink';
 import { Process, Port } from '../../types/process';
 
 interface ProcessDetailsProps {
@@ -63,17 +63,7 @@ export const ProcessDetails: React.FC<ProcessDetailsProps> = ({ process, onViewO
               { label: "Finish datetime", value: process.finished_at ? formatDateTime(process.finished_at) : "Not finished" },
               {
                 label: "Storage address",
-                value: process.storage_address ? (
-                  <a
-                    href={process.storage_address}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    <span>URL</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                ) : "Not available"
+                value: <StorageAddressLink address={process.storage_address} showFullPath={true} />
               },
             ].map((item, index) => (
               <tr key={index} className="border border-gray-300">

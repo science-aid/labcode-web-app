@@ -21,7 +21,7 @@ interface Filters {
   started_at?: string | null;
   finished_at?: string | null;
   status?: RunStatus;
-  storage_address?: string | null;
+  storage_mode?: string | null;
 }
 // interface Filters {
 //   id: number;
@@ -46,17 +46,7 @@ const columns = [
   { key: 'started_at' as const, label: 'Start datetime' },
   { key: 'finished_at' as const, label: 'finish datetime' },
   { key: 'status' as const, label: 'status' },
-  { key: 'storage_address' as const, label: 'storage address' },
-  // { key: 'projectId' as const, label: 'プロジェクトID' },
-  // { key: 'projectName' as const, label: 'プロジェクト名' },
-  // { key: 'id' as const, label: 'ID' },
-  // { key: 'protocolName' as const, label: 'プロトコル名' },
-  // { key: 'registeredAt' as const, label: '登録日時' },
-  // { key: 'startAt' as const, label: '開始日時' },
-  // { key: 'endAt' as const, label: '終了日時' },
-  // { key: 'status' as const, label: 'ステータス' },
-  // { key: 'contentMd5' as const, label: 'Content MD5' },
-  // { key: 'protocolUrl' as const, label: 'プロトコルURL' },
+  { key: 'storage_mode' as const, label: 'Storage' },
 ];
 
 export const DataTable: React.FC<DataTableProps> = ({
@@ -162,10 +152,6 @@ export const DataTable: React.FC<DataTableProps> = ({
                   onFilterChange={(value) => handleFilterChange(column.key, value)}
                 />
               ))}
-              {/* ★ 新規: Actions ヘッダー */}
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">

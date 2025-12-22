@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { StatusBadge } from '../StatusBadge';
 import { OperationDataItem } from '../../types/operation';
 import { formatDateTime } from '../../utils/dateFormatter';
+import { StorageAddressLink } from '../common/StorageAddressLink';
 
 interface OperationTableRowProps {
   item: OperationDataItem;
@@ -45,7 +46,7 @@ export const OperationTableRow: React.FC<OperationTableRowProps> = ({ item }) =>
         {item.finished_at ? formatDateTime(item.finished_at) : 'Not finished'}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {item.storage_address}
+        <StorageAddressLink address={item.storage_address} runId={item.run_id} />
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {item.is_transport ? 'Yes' : 'No'}

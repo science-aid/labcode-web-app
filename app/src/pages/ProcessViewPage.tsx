@@ -5,11 +5,15 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { useAuth } from '../contexts/AuthContext';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatDateTime } from '../utils/dateFormatter';
+import { isExternalUrl } from '../utils/storageAddress';
 import { ProcessViewer } from '../components/dag/ProcessViewer'; // ★新規コンポーネント
 import { fetchProcesses, fetchRun, fetchUser } from '../api/api'; // ★fetchProcesses実装済み
 import { RunResponse } from '../types/api';
 import { ProcessNode, ProcessEdge } from '../types/process'; // ★新規型定義
 import { Edge } from 'reactflow';
+import { FileBrowser, FilePreview } from '../components/storage';
+import { FileItem } from '../types/storage';
+import { AlertTriangle, ExternalLink } from 'lucide-react';
 
 export const ProcessViewPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +21,7 @@ export const ProcessViewPage: React.FC = () => {
   const { user } = useAuth();
   const [nodes, setNodes] = useState<ProcessNode[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [run, setRun] = useState<RunResponse>({
     id: 0,
     project_id: 0,
@@ -137,7 +142,66 @@ export const ProcessViewPage: React.FC = () => {
           </div>
           <ProcessViewer nodes={nodes} edges={edges} onViewOperations={handleViewOperations} />
         </div>
+
+        {/* Storage Browser Section */}
+        {run.storage_address && (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Storage Browser
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                {run.storage_address}
+              </p>
+            </div>
+            {isExternalUrl(run.storage_address) ? (
+              /* 外部URLの場合: 警告表示とリンク */
+              <div className="p-6">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-amber-800">
+                        External Storage Link
+                      </h3>
+                      <p className="mt-1 text-sm text-amber-700">
+                        This run uses external storage. File browsing is not available for external URLs.
+                      </p>
+                      <a
+                        href={run.storage_address}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-amber-800 hover:text-amber-900"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        Open External Link
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* S3パスの場合: FileBrowser表示 */
+              <div className="p-0">
+                <FileBrowser
+                  initialPath={run.storage_address}
+                  onFileSelect={(file) => setPreviewFile(file)}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </main>
+
+      {/* File Preview Modal */}
+      {previewFile && (
+        <FilePreview
+          filePath={previewFile.path}
+          fileName={previewFile.name}
+          open={!!previewFile}
+          onClose={() => setPreviewFile(null)}
+        />
+      )}
     </div>
   );
 };
