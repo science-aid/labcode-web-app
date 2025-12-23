@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Download, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import { downloadRunsAsZip, estimateBatchDownload, APIError, BatchDownloadEstimate } from '../api/api';
+import React, { useState, useCallback } from 'react';
+import { Download, Loader2, AlertCircle, CheckCircle, Database, FolderArchive } from 'lucide-react';
+import { downloadRunsAsZipV2, downloadMetadataDumpsAsZip, estimateBatchDownloadV2, APIError, BatchDownloadV2Estimate } from '../api/api';
+
+type DownloadFormat = 'zip' | 'db';
 
 type DownloadStatus = 'idle' | 'estimating' | 'confirming' | 'downloading' | 'completed' | 'error';
 
@@ -32,8 +34,10 @@ export const BatchDownloadButton: React.FC<BatchDownloadButtonProps> = ({
 }) => {
   const [status, setStatus] = useState<DownloadStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [estimate, setEstimate] = useState<BatchDownloadEstimate | null>(null);
+  const [estimate, setEstimate] = useState<BatchDownloadV2Estimate | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState<number>(0);
+  const [selectedFormat, setSelectedFormat] = useState<DownloadFormat>('zip');
 
   // ダウンロードが有効かどうか
   const canDownload = selectedRunIds.length > 0 && !isProcessing && status === 'idle';
@@ -44,44 +48,52 @@ export const BatchDownloadButton: React.FC<BatchDownloadButtonProps> = ({
   const handleClick = async () => {
     if (!canDownload) return;
 
-    // Phase B: 確認ダイアログ対応
-    if (needsConfirmation) {
-      setStatus('estimating');
-      try {
-        const estimateResult = await estimateBatchDownload(selectedRunIds);
-        setEstimate(estimateResult);
+    // 常に形式選択ダイアログを表示
+    setStatus('estimating');
+    try {
+      const estimateResult = await estimateBatchDownloadV2(selectedRunIds);
+      setEstimate(estimateResult);
 
-        if (!estimateResult.can_download) {
-          setStatus('error');
-          setErrorMessage(estimateResult.message || 'ダウンロードサイズが上限を超えています');
-          return;
-        }
-
-        setShowConfirmDialog(true);
-        setStatus('confirming');
-      } catch (err) {
-        handleError(err);
+      if (!estimateResult.can_download) {
+        setStatus('error');
+        setErrorMessage(estimateResult.message || 'ダウンロードサイズが上限を超えています');
+        return;
       }
-      return;
-    }
 
-    // 直接ダウンロード
-    await executeDownload();
+      setShowConfirmDialog(true);
+      setStatus('confirming');
+    } catch (err) {
+      handleError(err);
+    }
   };
 
-  const executeDownload = async () => {
+  const handleProgress = useCallback((progress: number) => {
+    setDownloadProgress(progress);
+  }, []);
+
+  const executeDownload = async (format: DownloadFormat = selectedFormat) => {
     setStatus('downloading');
     setErrorMessage(null);
+    setDownloadProgress(0);
     onDownloadStart?.();
 
     try {
-      await downloadRunsAsZip(selectedRunIds);
+      // 選択された形式に応じてダウンロード
+      if (format === 'db') {
+        // Metadata Dump (.db)
+        await downloadMetadataDumpsAsZip(selectedRunIds, handleProgress);
+      } else {
+        // ZIP Archive (Storage Browser相当のフォルダ構成)
+        await downloadRunsAsZipV2(selectedRunIds, handleProgress);
+      }
       setStatus('completed');
+      setDownloadProgress(100);
       onDownloadComplete?.();
 
       // 3秒後にアイドル状態に戻す
       setTimeout(() => {
         setStatus('idle');
+        setDownloadProgress(0);
       }, 3000);
     } catch (err) {
       handleError(err);
@@ -115,15 +127,17 @@ export const BatchDownloadButton: React.FC<BatchDownloadButtonProps> = ({
     onDownloadError?.(err instanceof Error ? err : new Error(message));
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = (format: DownloadFormat) => {
     setShowConfirmDialog(false);
-    executeDownload();
+    setSelectedFormat(format);
+    executeDownload(format);
   };
 
   const handleCancel = () => {
     setShowConfirmDialog(false);
     setStatus('idle');
     setEstimate(null);
+    setSelectedFormat('zip');
   };
 
   const handleRetry = () => {
@@ -148,13 +162,24 @@ export const BatchDownloadButton: React.FC<BatchDownloadButtonProps> = ({
 
       case 'downloading':
         return (
-          <button
-            disabled
-            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-400 rounded-md cursor-not-allowed"
-          >
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ダウンロード中...
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              disabled
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-400 rounded-md cursor-not-allowed"
+            >
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ダウンロード中...
+            </button>
+            <div className="flex items-center space-x-2">
+              <div className="w-24 bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${downloadProgress}%` }}
+                />
+              </div>
+              <span className="text-sm text-gray-600 w-10">{downloadProgress}%</span>
+            </div>
+          </div>
         );
 
       case 'completed':
@@ -206,38 +231,58 @@ export const BatchDownloadButton: React.FC<BatchDownloadButtonProps> = ({
     <>
       {renderButton()}
 
-      {/* Phase B: 確認ダイアログ */}
+      {/* Phase B: 形式選択ダイアログ */}
       {showConfirmDialog && estimate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">
-                ダウンロード確認
+                ダウンロード形式を選択
               </h3>
             </div>
             <div className="px-6 py-4">
               <p className="text-gray-700 mb-4">
                 {estimate.run_count}件のランをダウンロードします。
               </p>
-              <p className="text-sm text-gray-500 mb-2">
-                推定サイズ: 約 {estimate.estimated_size_mb.toFixed(1)}MB
+              <p className="text-sm text-gray-500 mb-4">
+                推定サイズ: 約 {estimate.estimated_size_mb.toFixed(1)}MB（ZIP Archive）
               </p>
-              <p className="text-sm text-gray-500">
-                ファイルサイズによっては時間がかかる場合があります。
-              </p>
+
+              {/* 形式選択オプション */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleConfirm('zip')}
+                  className="w-full px-4 py-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-start gap-3"
+                >
+                  <FolderArchive className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="font-medium text-gray-900">ZIP Archive</div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      フォルダ構成 (.zip) - 全ファイル + メタデータ
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleConfirm('db')}
+                  className="w-full px-4 py-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-start gap-3"
+                >
+                  <Database className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="font-medium text-gray-900">Metadata Dump</div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      SQLite形式 (.db) - メタデータのみ（軽量）
+                    </div>
+                  </div>
+                </button>
+              </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
               <button
                 onClick={handleCancel}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
               >
                 キャンセル
-              </button>
-              <button
-                onClick={handleConfirm}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                ダウンロード
               </button>
             </div>
           </div>

@@ -631,3 +631,318 @@ export const downloadRunsAsZip = async (
     throw new APIError(`Request setup error: ${(error as Error).message}`);
   }
 };
+
+/**
+ * 複数ランのファイルをZIP形式で一括ダウンロード（進捗コールバック付き）
+ *
+ * @param runIds - ダウンロード対象のランIDリスト
+ * @param onProgress - 進捗コールバック（0-100%）
+ */
+export const downloadRunsAsZipWithProgress = async (
+  runIds: string[],
+  onProgress?: (progress: number) => void
+): Promise<void> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/storage/batch-download`,
+      { run_ids: runIds.map(id => parseInt(id, 10)) },
+      {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress(progress);
+          } else if (onProgress && progressEvent.loaded) {
+            // Totalがない場合は不定進捗（ストリーミング）
+            // 読み込みサイズから推定（最大500MBを想定）
+            const estimatedTotal = 500 * 1024 * 1024;
+            const progress = Math.min(Math.round((progressEvent.loaded * 100) / estimatedTotal), 99);
+            onProgress(progress);
+          }
+        }
+      }
+    );
+
+    // Content-Dispositionからファイル名を取得
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = 'labcode_runs.zip';
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?([^";\n]+)"?/);
+      if (match) {
+        filename = match[1];
+      }
+    }
+
+    // Blobを作成してダウンロード
+    const blob = new Blob([response.data], { type: 'application/zip' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // 完了
+    onProgress?.(100);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        // Blobエラーレスポンスをテキストに変換
+        if (axiosError.response.data instanceof Blob) {
+          const text = await (axiosError.response.data as Blob).text();
+          try {
+            const errorData = JSON.parse(text);
+            throw new APIError(
+              errorData.detail || 'Failed to download files',
+              axiosError.response.status,
+              errorData
+            );
+          } catch {
+            throw new APIError(
+              'Failed to download files',
+              axiosError.response.status
+            );
+          }
+        }
+        throw new APIError(
+          'Failed to download files',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+// ==================== Batch Download V2 APIs (HAL対応) ====================
+
+/**
+ * HAL対応バッチダウンロードの推定サイズレスポンス型
+ */
+export interface BatchDownloadV2Estimate {
+  run_count: number;
+  total_files: number;
+  estimated_size_bytes: number;
+  estimated_size_mb: number;
+  can_download: boolean;
+  message?: string;
+  runs_detail: Array<{
+    run_id: number;
+    storage_mode?: string;
+    file_count?: number;
+    estimated_size?: number;
+    error?: string;
+  }>;
+}
+
+/**
+ * HAL対応バッチダウンロードの推定サイズを取得
+ * Storage Browser相当のフォルダ構成でのダウンロードサイズを推定
+ *
+ * @param runIds - ダウンロード対象のランIDリスト
+ * @returns 推定サイズ情報
+ */
+export const estimateBatchDownloadV2 = async (
+  runIds: string[]
+): Promise<BatchDownloadV2Estimate> => {
+  try {
+    const response = await axios.post<BatchDownloadV2Estimate>(
+      `${API_BASE_URL}/v2/storage/batch-download/estimate`,
+      { run_ids: runIds.map(id => parseInt(id, 10)) }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        throw new APIError(
+          'Failed to estimate batch download size',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+/**
+ * HAL対応: 複数ランのファイルをZIP形式で一括ダウンロード
+ * Storage Browser相当のフォルダ構成でダウンロード（全ストレージモード対応）
+ *
+ * @param runIds - ダウンロード対象のランIDリスト
+ * @param onProgress - 進捗コールバック（0-100%）
+ */
+export const downloadRunsAsZipV2 = async (
+  runIds: string[],
+  onProgress?: (progress: number) => void
+): Promise<void> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/v2/storage/batch-download`,
+      { run_ids: runIds.map(id => parseInt(id, 10)) },
+      {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress(progress);
+          } else if (onProgress && progressEvent.loaded) {
+            // Totalがない場合は不定進捗（ストリーミング）
+            const estimatedTotal = 500 * 1024 * 1024;
+            const progress = Math.min(Math.round((progressEvent.loaded * 100) / estimatedTotal), 99);
+            onProgress(progress);
+          }
+        }
+      }
+    );
+
+    // Content-Dispositionからファイル名を取得
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = 'labcode_runs.zip';
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?([^";\n]+)"?/);
+      if (match) {
+        filename = match[1];
+      }
+    }
+
+    // Blobを作成してダウンロード
+    const blob = new Blob([response.data], { type: 'application/zip' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // 完了
+    onProgress?.(100);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        if (axiosError.response.data instanceof Blob) {
+          const text = await (axiosError.response.data as Blob).text();
+          try {
+            const errorData = JSON.parse(text);
+            throw new APIError(
+              errorData.detail || 'Failed to download files',
+              axiosError.response.status,
+              errorData
+            );
+          } catch {
+            throw new APIError(
+              'Failed to download files',
+              axiosError.response.status
+            );
+          }
+        }
+        throw new APIError(
+          'Failed to download files',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};
+
+/**
+ * 複数ランのメタデータダンプを一括ダウンロード
+ * 各ランごとに個別の.dbファイルをZIPにまとめてダウンロード
+ *
+ * @param runIds - ダウンロード対象のランIDリスト
+ * @param onProgress - 進捗コールバック（0-100%）
+ */
+export const downloadMetadataDumpsAsZip = async (
+  runIds: string[],
+  onProgress?: (progress: number) => void
+): Promise<void> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/v2/storage/batch-dump`,
+      { run_ids: runIds.map(id => parseInt(id, 10)) },
+      {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress(progress);
+          } else if (onProgress && progressEvent.loaded) {
+            const estimatedTotal = 50 * 1024 * 1024;
+            const progress = Math.min(Math.round((progressEvent.loaded * 100) / estimatedTotal), 99);
+            onProgress(progress);
+          }
+        }
+      }
+    );
+
+    // Content-Dispositionからファイル名を取得
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = 'labcode_metadata_dumps.zip';
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?([^";\n]+)"?/);
+      if (match) {
+        filename = match[1];
+      }
+    }
+
+    // Blobを作成してダウンロード
+    const blob = new Blob([response.data], { type: 'application/zip' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // 完了
+    onProgress?.(100);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        if (axiosError.response.data instanceof Blob) {
+          const text = await (axiosError.response.data as Blob).text();
+          try {
+            const errorData = JSON.parse(text);
+            throw new APIError(
+              errorData.detail || 'Failed to download metadata dumps',
+              axiosError.response.status,
+              errorData
+            );
+          } catch {
+            throw new APIError(
+              'Failed to download metadata dumps',
+              axiosError.response.status
+            );
+          }
+        }
+        throw new APIError(
+          'Failed to download metadata dumps',
+          axiosError.response.status,
+          axiosError.response.data
+        );
+      } else if (axiosError.request) {
+        throw new APIError('No response received from API');
+      }
+    }
+    throw new APIError(`Request setup error: ${(error as Error).message}`);
+  }
+};

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
-import { Database, Download, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { UserProfile } from '../components/UserProfile';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,6 +9,7 @@ import { formatDateTime } from '../utils/dateFormatter';
 import { fetchRun, fetchUser } from '../api/api';
 import { RunResponse } from '../types/api';
 import { FileBrowserV2 } from '../components/storage/FileBrowserV2';
+import { DownloadFormatSelector } from '../components/storage/DownloadFormatSelector';
 import { StorageAddressLink } from '../components/common/StorageAddressLink';
 import { isStorageModeUnknown } from '../utils/storageAddress';
 import { getStorageInfoV2 } from '../services/runStorageService';
@@ -72,7 +73,7 @@ export const RunDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm sticky top-0 z-50">
         {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4"> */}
         <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-start">
@@ -192,18 +193,9 @@ export const RunDetailPage: React.FC = () => {
                    run.storage_mode === 'local' ? 'Local Mode' : 'Unknown Mode'}
                 </p>
               </div>
-              {/* ローカルモード時のSQLダンプダウンロードボタン */}
-              {run.storage_mode === 'local' && (
-                <a
-                  href={`/log_server_api/v2/storage/dump/${run.id}`}
-                  download={`run_${run.id}_dump.db`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-                  title="Download SQL dump for this run"
-                >
-                  <Database className="w-4 h-4" />
-                  <Download className="w-4 h-4" />
-                  <span>SQL Dump</span>
-                </a>
+              {/* ダウンロード形式選択ボタン（全モード対応） */}
+              {run.id > 0 && (
+                <DownloadFormatSelector runId={run.id} />
               )}
             </div>
             <div className="p-4">
