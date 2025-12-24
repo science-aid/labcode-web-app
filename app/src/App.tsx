@@ -11,6 +11,8 @@ import { OperationListPage } from './pages/OperationListPage';
 import NotFound from './pages/NotFound';
 import InternalServerError from './pages/InternalServerError';
 import Forbidden from './pages/Forbidden';
+import { FEATURES } from './config/features';
+import { AdminRoutes } from './pages/admin';
 
 // Redirect components for backward compatibility
 const RedirectToNewProcessesRoute = () => {
@@ -36,6 +38,10 @@ function App() {
             <Route path="/runs/:id" element={<RunDetailPage />} />
             <Route path="/runs/:runId/processes" element={<ProcessViewPage />} />
             <Route path="/operations" element={<OperationListPage />} />
+            {/* Admin routes - conditionally rendered based on feature flag */}
+            {FEATURES.ADMIN_PANEL && (
+              <Route path="/admin/*" element={<AdminRoutes />} />
+            )}
             {/* Redirect old URL patterns for backward compatibility */}
             <Route path="/protocol_list" element={<RedirectToRuns />} />
             <Route path="/protocol_list/:id" element={<RedirectToRuns />} />

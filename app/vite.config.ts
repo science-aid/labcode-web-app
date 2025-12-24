@@ -25,6 +25,17 @@ export default defineConfig({
                     proxyRes.headers['Access-Control-Allow-Origin'] = '*';
                   });
                 }
+      },
+      // Proxy for labcode-sim experiment runner
+      '/sim_api': {
+        target: 'http://lab_simulator:8080',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/sim_api/, ''),
+        configure: (proxy, _options) => {
+                  proxy.on('proxyRes', (proxyRes, _req, _res) => {
+                    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+                  });
+                }
       }
     }
   }
