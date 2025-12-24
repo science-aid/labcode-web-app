@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StepProps } from './types';
 import { runExperiment, AdminAPIError } from '../../../api/adminApi';
 
@@ -7,10 +7,17 @@ export const RunningStep: React.FC<StepProps> = ({
   setState,
 }) => {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const hasExecutedRef = useRef(false);
+  const isMountedRef = useRef(true);
 
   // Run experiment on mount
   useEffect(() => {
-    let isMounted = true;
+    // Always reset isMountedRef on mount (including StrictMode remount)
+    isMountedRef.current = true;
+
+    // Prevent double API call in React StrictMode
+    if (hasExecutedRef.current) return;
+    hasExecutedRef.current = true;
 
     const executeExperiment = async () => {
       if (
@@ -36,7 +43,7 @@ export const RunningStep: React.FC<StepProps> = ({
           state.manipulateFile
         );
 
-        if (isMounted) {
+        if (isMountedRef.current) {
           setState((prev) => ({
             ...prev,
             runId: result.run_id,
@@ -45,7 +52,7 @@ export const RunningStep: React.FC<StepProps> = ({
           }));
         }
       } catch (err) {
-        if (isMounted) {
+        if (isMountedRef.current) {
           const errorMessage =
             err instanceof AdminAPIError
               ? err.message
@@ -63,7 +70,7 @@ export const RunningStep: React.FC<StepProps> = ({
     executeExperiment();
 
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
