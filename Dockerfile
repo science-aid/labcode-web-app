@@ -1,5 +1,5 @@
 # ベースイメージを指定（Node.jsのLTS版）
-FROM node:18-alpine
+FROM node:22.23.4-alpine
 
 # 作業ディレクトリを設定
 WORKDIR /app
